@@ -1404,7 +1404,7 @@ function signOut() {
   if(confirm('Sign out? Your data stays saved — you can sign back in anytime.')) {
     localStorage.removeItem('db_user');
     sessionStorage.removeItem('gdrive_token');
-    window.location.href = 'index.html';
+    window.location.href = 'index_v4.html';
   }
 }
 function switchAccount(){
@@ -1412,7 +1412,7 @@ function switchAccount(){
   if(confirm('Switch account? Your current data stays saved under this account.')){
     localStorage.removeItem('db_user');
     sessionStorage.removeItem('gdrive_token');
-    window.location.href = 'index.html';
+    window.location.href = 'index_v4.html';
   }
 }
 document.addEventListener('click',function(e){
