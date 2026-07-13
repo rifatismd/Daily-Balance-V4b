@@ -591,28 +591,65 @@
   <div class="wizard-step active" id="wStep0">
     <div class="wizard-logo">⚖️</div>
     <div class="wizard-title">Welcome to<br/><em>Daily Balance</em></div>
-    <div class="wizard-sub">Let's set up your personal routine in a few steps. Everything will be saved to your account.</div>
+    <div class="wizard-sub">Let's set up your personal daily routine. Takes 2 minutes!</div>
+
     <div class="wizard-card">
-      <div class="wizard-card-title">👤 Your Info</div>
-      <div class="wiz-label">Your name</div>
+      <div class="wizard-card-title">👤 About You</div>
+      <div class="wiz-label">Your name *</div>
       <input class="wiz-input" id="wizName" placeholder="e.g. Alex" />
-      <div class="wiz-label">What do you study / do?</div>
-      <input class="wiz-input" id="wizRole" placeholder="e.g. CS 2nd Year, University" />
-      <div class="wiz-label">Wake up time</div>
-      <input class="wiz-input" type="time" id="wizWakeTime" value="05:00" />
-      <div class="wiz-label">Sleep time</div>
-      <input class="wiz-input" type="time" id="wizSleepTime" value="22:30" />
+      <div class="wiz-label">What do you do? (optional)</div>
+      <input class="wiz-input" id="wizRole" placeholder="e.g. Student, Engineer, Freelancer, Parent..." />
+      <div class="wiz-label">I mainly want to track:</div>
+      <div class="wiz-type-row" style="margin-bottom:4px;" id="wizLifestyleRow">
+        <button class="wiz-type-btn active" data-ls="study" onclick="wizSetLifestyle(this)">📚 Study</button>
+        <button class="wiz-type-btn" data-ls="work" onclick="wizSetLifestyle(this)">💼 Work</button>
+        <button class="wiz-type-btn" data-ls="health" onclick="wizSetLifestyle(this)">🏃 Health</button>
+        <button class="wiz-type-btn" data-ls="business" onclick="wizSetLifestyle(this)">🏢 Business</button>
+        <button class="wiz-type-btn" data-ls="mixed" onclick="wizSetLifestyle(this)">🎯 Mixed</button>
+      </div>
+      <input type="hidden" id="wizLifestyle" value="study" />
     </div>
+
+    <div class="wizard-card">
+      <div class="wizard-card-title">⏰ Daily Schedule</div>
+      <div class="wiz-label">Wake up time</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <select class="wiz-input" id="wizWakeHour" style="margin-bottom:0;flex:1;">
+          <option value="04">4:00</option><option value="05" selected>5:00</option><option value="06">6:00</option><option value="07">7:00</option><option value="08">8:00</option><option value="09">9:00</option><option value="10">10:00</option>
+        </select>
+        <span style="color:var(--muted);">:</span>
+        <select class="wiz-input" id="wizWakeMin" style="margin-bottom:0;flex:1;">
+          <option value="00" selected>00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
+        </select>
+        <select class="wiz-input" id="wizWakeAmPm" style="margin-bottom:0;flex:1;">
+          <option value="AM" selected>AM</option><option value="PM">PM</option>
+        </select>
+      </div>
+      <div class="wiz-label">Sleep time</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <select class="wiz-input" id="wizSleepHour" style="margin-bottom:0;flex:1;">
+          <option value="08">8:00</option><option value="09">9:00</option><option value="10" selected>10:00</option><option value="11">11:00</option><option value="12">12:00</option>
+        </select>
+        <span style="color:var(--muted);">:</span>
+        <select class="wiz-input" id="wizSleepMin" style="margin-bottom:0;flex:1;">
+          <option value="00" selected>00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
+        </select>
+        <select class="wiz-input" id="wizSleepAmPm" style="margin-bottom:0;flex:1;">
+          <option value="AM">AM</option><option value="PM" selected>PM</option>
+        </select>
+      </div>
+    </div>
+
     <div class="wiz-btn-row">
       <button class="wiz-next" onclick="wizNext(1)">Next →</button>
     </div>
     <p style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:10px;">Complete setup to start using Daily Balance</p>
   </div>
 
-  <!-- Step 1: Class Schedule -->
+  <!-- Step 1: Schedule (optional if not studying) -->
   <div class="wizard-step" id="wStep1">
-    <div class="wizard-title" style="margin-top:8px;">📚 Your <em>Classes</em></div>
-    <div class="wizard-sub">Add your class schedule for each day. You can add more later from Slot Manager.</div>
+    <div class="wizard-title" style="margin-top:8px;" id="wizStep1Title">📅 Your <em>Schedule</em></div>
+    <div class="wizard-sub" id="wizStep1Sub">Add your recurring scheduled activities (classes, work shifts, meetings). Skip if not applicable.</div>
 
     <div class="wiz-day-tabs" id="wizDayTabs"></div>
 
@@ -648,6 +685,7 @@
       <button class="wiz-back-btn" onclick="wizNext(0)">← Back</button>
       <button class="wiz-next" onclick="wizNext(2)">Next →</button>
     </div>
+    <button class="wiz-skip" onclick="wizNext(2)" style="background:transparent;border:none;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;margin-top:10px;display:block;width:100%;text-align:center;">Skip — I don't have a fixed schedule</button>
   </div>
 
   <!-- Step 2: Daily Routine Slots -->
@@ -1371,6 +1409,10 @@ window.addEventListener('DOMContentLoaded',function(){ migrateDataIfNeeded(); in
 function initUserGreeting() {
   try {
     var user=getUserData();
+    var sched=getUserSchedule();
+    // Wizard name takes priority over Gmail name
+    var displayName = (sched&&sched.name) ? sched.name : (user&&user.name ? user.name.split(' ')[0] : 'there');
+
     var avatarEl=document.getElementById('userAvatar');
     var avatarInner=document.getElementById('userAvatarInner');
     var menuAvatar=document.getElementById('userMenuAvatar');
@@ -1380,7 +1422,7 @@ function initUserGreeting() {
       if(avatarInner) avatarInner.innerHTML=img;
       if(menuAvatar) menuAvatar.innerHTML=img;
     } else {
-      var initial = user&&user.name ? user.name[0].toUpperCase() : '👤';
+      var initial = displayName ? displayName[0].toUpperCase() : '👤';
       if(avatarInner) avatarInner.textContent=initial;
       if(menuAvatar) menuAvatar.textContent=initial;
     }
@@ -1389,12 +1431,11 @@ function initUserGreeting() {
     if(greetEl){
       var h=new Date().getHours();
       var g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-      var name = user&&user.name ? user.name.split(' ')[0] : 'there';
-      greetEl.textContent=g+', '+name+' 👋';
+      greetEl.textContent=g+', '+displayName+' 👋';
     }
     var mn=document.getElementById('userMenuName');
     var me=document.getElementById('userMenuEmail');
-    if(mn) mn.textContent=user&&user.name ? user.name : 'Guest';
+    if(mn) mn.textContent=(sched&&sched.name) ? sched.name : (user&&user.name ? user.name : 'Guest');
     if(me) me.textContent=user&&user.email ? user.email : 'Guest mode — data saved locally';
   } catch(e) {}
 }
@@ -1535,15 +1576,48 @@ function checkAndShowWizard(){
   }
 }
 
+function wizSetLifestyle(btn){
+  document.querySelectorAll('#wizLifestyleRow .wiz-type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('wizLifestyle').value = btn.dataset.ls;
+  // Update step 1 title based on lifestyle
+  const titles = {
+    study: ['📚 Your <em>Classes</em>', 'Add your class schedule. Skip if you have no fixed classes.'],
+    work:  ['💼 Your <em>Work Schedule</em>', 'Add your work shifts or meetings. Skip if flexible.'],
+    health:['🏃 Your <em>Activities</em>', 'Add fixed gym sessions or appointments. Skip if flexible.'],
+    business:['🏢 Your <em>Meetings</em>', 'Add recurring meetings or appointments. Skip if flexible.'],
+    mixed: ['📅 Your <em>Schedule</em>', 'Add any recurring scheduled activities. Skip if not applicable.'],
+  };
+  const ls = btn.dataset.ls;
+  const t1 = document.getElementById('wizStep1Title');
+  const s1 = document.getElementById('wizStep1Sub');
+  if(t1&&titles[ls]) t1.innerHTML = titles[ls][0];
+  if(s1&&titles[ls]) s1.textContent = titles[ls][1];
+}
+
 function wizNext(step){
-  // Validate step 0 — name required
+  // Validate step 0
   if(step===1){
     const name = document.getElementById('wizName').value.trim();
     if(!name){ alert('Please enter your name to continue.'); return; }
     wizData.name = name;
     wizData.role = document.getElementById('wizRole').value.trim();
-    wizData.wakeTime = document.getElementById('wizWakeTime').value || '05:00';
-    wizData.sleepTime = document.getElementById('wizSleepTime').value || '22:30';
+    wizData.lifestyle = document.getElementById('wizLifestyle').value || 'mixed';
+    // Build time from dropdowns
+    const wh = document.getElementById('wizWakeHour').value;
+    const wm = document.getElementById('wizWakeMin').value;
+    const wap = document.getElementById('wizWakeAmPm') ? document.getElementById('wizWakeAmPm').value : 'AM';
+    let wHour = parseInt(wh);
+    if(wap==='PM'&&wHour!==12) wHour+=12;
+    if(wap==='AM'&&wHour===12) wHour=0;
+    wizData.wakeTime = String(wHour).padStart(2,'0')+':'+wm;
+    const sh = document.getElementById('wizSleepHour').value;
+    const sm = document.getElementById('wizSleepMin').value;
+    const sap = document.getElementById('wizSleepAmPm') ? document.getElementById('wizSleepAmPm').value : 'PM';
+    let sHour = parseInt(sh);
+    if(sap==='PM'&&sHour!==12) sHour+=12;
+    if(sap==='AM'&&sHour===12) sHour=0;
+    wizData.sleepTime = String(sHour).padStart(2,'0')+':'+sm;
   }
   // Update progress dots
   for(let i=0;i<4;i++){
@@ -1660,63 +1734,104 @@ function wizDelRoutine(i){
 }
 
 async function aiGenerateRoutine(){
-  const input = document.getElementById('aiRoutineInput').value.trim();
+  const input = document.getElementById('aiRoutineInput').value.trim().toLowerCase();
   if(!input){ alert('Please describe your routine first.'); return; }
   const btn = document.getElementById('aiRoutineBtn');
   const status = document.getElementById('aiRoutineStatus');
   const statusText = document.getElementById('aiRoutineStatusText');
   btn.disabled=true; btn.textContent='Generating...';
-  status.style.display='block'; statusText.textContent='AI is reading your routine...';
-  try{
-    const prompt=`You are a daily routine assistant. The user described their routine:
-"${input}"
+  status.style.display='block'; statusText.textContent='Reading your routine...';
+  statusText.style.color='var(--muted)';
 
-Extract routine slots and return ONLY a JSON array (no markdown, no explanation):
-[{"name":"Activity Name","type":"study|break|meal|sleep|skill","time":"HH:MM","endTime":"HH:MM or empty"}]
+  // Smart offline routine generator based on keywords
+  const slots = [];
 
-Rules:
-- type must be one of: study, break, meal, sleep, skill
-- time is 24h format HH:MM
-- endTime is optional, empty string if unknown
-- Include all mentioned activities
-- Max 15 slots`;
-
-    const r = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data = await r.json();
-    const text = data.content?.map(c=>c.text||'').join('')||'[]';
-    const clean = text.replace(/```json|```/g,'').trim();
-    const slots = JSON.parse(clean);
-    // Add to wizData.routine
-    slots.forEach(s=>{
-      if(!s.name||!s.time) return;
-      const h=parseInt(s.time.split(':')[0]), m=parseInt(s.time.split(':')[1]||0);
-      const ampm=h<12?'AM':'PM'; const h12=h===0?12:h>12?h-12:h;
-      let timeStr=`${h12}:${String(m).padStart(2,'0')} ${ampm}`;
-      if(s.endTime){
-        const eh=parseInt(s.endTime.split(':')[0]), em=parseInt(s.endTime.split(':')[1]||0);
-        const eampm=eh<12?'AM':'PM'; const eh12=eh===0?12:eh>12?eh-12:eh;
-        timeStr+=`–${eh12}:${String(em).padStart(2,'0')} ${eampm}`;
-      }
-      wizData.routine.push({name:s.name, type:s.type||'study', time:timeStr});
-    });
-    wizRenderRoutineList();
-    statusText.textContent=`✅ Added ${slots.length} slots! Review below and edit if needed.`;
-    statusText.style.color='var(--accent2)';
-    btn.textContent='✦ Generate Again';
-  }catch(e){
-    statusText.textContent='❌ Could not generate. Check internet or add manually.';
-    statusText.style.color='var(--rose)';
-    btn.textContent='✦ Generate Routine with AI';
+  function hasWord(...words){ return words.some(w=>input.includes(w)); }
+  function extractTime(pattern){
+    const m = input.match(pattern);
+    return m ? m[0] : null;
   }
+
+  // Wake up
+  if(hasWord('wake','woke','get up','morning')) {
+    const t = input.match(/(\d+)\s*(am|pm)/i);
+    if(t){ const h=parseInt(t[1]),ap=t[2].toUpperCase(); slots.push({name:'Wake Up',type:'break',time:h+':00 '+ap,endTime:''}); }
+    else slots.push({name:'Wake Up',type:'break',time:'6:00 AM',endTime:''});
+  }
+
+  // Prayer times
+  if(hasWord('fajr','fajar')) slots.push({name:'Fajr Prayer',type:'break',time:'5:15 AM',endTime:''});
+  if(hasWord('dhuhr','zuhr','noon prayer')) slots.push({name:'Dhuhr Prayer',type:'break',time:'1:00 PM',endTime:''});
+  if(hasWord('asr','asor')) slots.push({name:'Asr Prayer',type:'break',time:'4:00 PM',endTime:''});
+  if(hasWord('maghrib','magrib')) slots.push({name:'Maghrib Prayer',type:'break',time:'6:30 PM',endTime:''});
+  if(hasWord('isha','esha')) slots.push({name:'Isha Prayer',type:'break',time:'8:30 PM',endTime:''});
+  if(hasWord('prayer','namaz','salah') && !hasWord('fajr','dhuhr','asr','maghrib','isha')) {
+    slots.push({name:'Prayer',type:'break',time:'5:00 PM',endTime:''});
+  }
+
+  // Exercise
+  if(hasWord('gym','workout','exercise','run','jog','walk','yoga')) {
+    slots.push({name:hasWord('gym')?'Gym Session':hasWord('run','jog')?'Morning Run':'Exercise',type:'break',time:'6:30 AM',endTime:'7:30 AM'});
+  }
+
+  // Breakfast
+  if(hasWord('breakfast','morning meal')) slots.push({name:'Breakfast',type:'meal',time:'7:30 AM',endTime:''});
+
+  // Study
+  if(hasWord('study','class','university','college','school','lecture')) {
+    if(hasWord('morning study','study in morning','study morning')) slots.push({name:'Morning Study',type:'study',time:'8:00 AM',endTime:'10:00 AM'});
+    if(hasWord('night study','study at night','night revision','evening study')) slots.push({name:'Night Study',type:'study',time:'9:00 PM',endTime:'10:30 PM'});
+    if(!hasWord('morning study','night study','study at night')) slots.push({name:'Study Session',type:'study',time:'8:00 AM',endTime:'12:00 PM'});
+  }
+
+  // Work
+  if(hasWord('work','office','job','shift')) slots.push({name:hasWord('office')?'Office Work':'Work',type:'study',time:'9:00 AM',endTime:'5:00 PM'});
+
+  // Lunch
+  if(hasWord('lunch','afternoon meal','midday')) slots.push({name:'Lunch',type:'meal',time:'1:00 PM',endTime:''});
+
+  // Nap / rest
+  if(hasWord('nap','rest','sleep afternoon','afternoon rest')) slots.push({name:'Afternoon Rest',type:'break',time:'2:00 PM',endTime:'3:00 PM'});
+
+  // Coding / skill
+  if(hasWord('code','coding','python','programming','dev','develop')) slots.push({name:'Coding Practice',type:'python',time:'7:00 PM',endTime:'8:00 PM'});
+  if(hasWord('reading','read book','book')) slots.push({name:'Reading',type:'study',time:'8:00 PM',endTime:'8:30 PM'});
+  if(hasWord('english','language','vocabulary')) slots.push({name:'English Practice',type:'study',time:'8:30 PM',endTime:'9:00 PM'});
+
+  // Dinner
+  if(hasWord('dinner','supper','evening meal')) slots.push({name:'Dinner',type:'meal',time:'7:30 PM',endTime:''});
+
+  // Sleep
+  if(hasWord('sleep','bed','sleep at','go to bed')) {
+    const t = input.match(/sleep.*?(\d+)\s*(am|pm)/i)||input.match(/(\d+)\s*(am|pm).*?sleep/i);
+    if(t){ const h=parseInt(t[1]),ap=t[2].toUpperCase(); slots.push({name:'Sleep',type:'sleep',time:h+':00 '+ap,endTime:''}); }
+    else slots.push({name:'Sleep',type:'sleep',time:'10:30 PM',endTime:''});
+  }
+
+  // If nothing detected, add basics
+  if(slots.length === 0){
+    slots.push(
+      {name:'Morning Routine',type:'break',time:'7:00 AM',endTime:''},
+      {name:'Main Activity',type:'study',time:'9:00 AM',endTime:'12:00 PM'},
+      {name:'Lunch Break',type:'meal',time:'1:00 PM',endTime:''},
+      {name:'Evening Session',type:'study',time:'5:00 PM',endTime:'7:00 PM'},
+      {name:'Dinner',type:'meal',time:'7:30 PM',endTime:''},
+      {name:'Wind Down',type:'break',time:'10:00 PM',endTime:''}
+    );
+  }
+
+  // Add to wizData.routine (avoid duplicates)
+  slots.forEach(s=>{
+    if(!wizData.routine.find(r=>r.name===s.name)){
+      wizData.routine.push({name:s.name, type:s.type, time:s.time+(s.endTime?'–'+s.endTime:'')});
+    }
+  });
+
+  wizRenderRoutineList();
+  statusText.textContent=`✅ Added ${slots.length} slots! Review and edit below.`;
+  statusText.style.color='var(--accent2)';
   btn.disabled=false;
+  btn.textContent='✦ Generate Again';
 }
 
 function wizFinish(){
