@@ -702,6 +702,10 @@
       </div>
       <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Describe your ideal daily routine and AI will suggest slots for you.</div>
       <textarea id="aiRoutineInput" placeholder="e.g. I wake up at 5am, pray Fajr, study for 2 hours, have class from 8-1pm, rest in afternoon, study at night and sleep at 11pm..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.8rem;resize:none;height:80px;box-sizing:border-box;outline:none;margin-bottom:8px;"></textarea>
+      <div style="font-size:0.68rem;color:var(--muted);margin-bottom:8px;line-height:1.6;">
+        💡 <b style="color:var(--text);">Tips:</b> Include times like "wake up at 6am", "work 9am-5pm", "sleep at 11pm"<br>
+        Keywords: <span style="color:var(--accent2);">fajr, gym, breakfast, study, class, work, lunch, prayer, dinner, coding, reading, sleep</span>
+      </div>
       <button onclick="aiGenerateRoutine()" id="aiRoutineBtn" style="width:100%;background:var(--accent);border:none;color:#080b10;border-radius:8px;padding:9px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:0.82rem;">✦ Generate Routine with AI</button>
       <div id="aiRoutineStatus" style="display:none;font-size:0.78rem;color:var(--muted);text-align:center;margin-top:8px;padding:8px;">
         <span id="aiRoutineStatusText">Generating...</span>
@@ -1743,73 +1747,101 @@ async function aiGenerateRoutine(){
   status.style.display='block'; statusText.textContent='Reading your routine...';
   statusText.style.color='var(--muted)';
 
-  // Smart offline routine generator based on keywords
-  const slots = [];
-
   function hasWord(...words){ return words.some(w=>input.includes(w)); }
-  function extractTime(pattern){
-    const m = input.match(pattern);
-    return m ? m[0] : null;
+
+  // Extract time near a keyword — looks for patterns like "at 5am", "5:30 am", "from 9am", "9-5pm"
+  function findTime(keyword, defaultTime){
+    const idx = input.indexOf(keyword);
+    if(idx === -1) return defaultTime;
+    const nearby = input.substring(Math.max(0,idx-10), idx+30);
+    // Match "5am", "5:30am", "5 am", "5:30 pm"
+    const m = nearby.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
+    if(m){
+      let h=parseInt(m[1]), min=m[2]?parseInt(m[2]):0, ap=m[3].toUpperCase();
+      return `${h}:${String(min).padStart(2,'0')} ${ap}`;
+    }
+    return defaultTime;
   }
 
+  function findTimeRange(keyword, defStart, defEnd){
+    const idx = input.indexOf(keyword);
+    if(idx === -1) return {start:defStart, end:defEnd};
+    const nearby = input.substring(Math.max(0,idx-5), idx+40);
+    // Match "9am-5pm", "9:00am to 5pm", "9 am - 5 pm"
+    const m = nearby.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)\s*(?:-|to)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
+    if(m){
+      let h1=parseInt(m[1]),min1=m[2]?parseInt(m[2]):0,ap1=m[3].toUpperCase();
+      let h2=parseInt(m[4]),min2=m[5]?parseInt(m[5]):0,ap2=m[6].toUpperCase();
+      return {start:`${h1}:${String(min1).padStart(2,'0')} ${ap1}`, end:`${h2}:${String(min2).padStart(2,'0')} ${ap2}`};
+    }
+    return {start:defStart, end:defEnd};
+  }
+
+  const slots = [];
+
   // Wake up
-  if(hasWord('wake','woke','get up','morning')) {
-    const t = input.match(/(\d+)\s*(am|pm)/i);
-    if(t){ const h=parseInt(t[1]),ap=t[2].toUpperCase(); slots.push({name:'Wake Up',type:'break',time:h+':00 '+ap,endTime:''}); }
-    else slots.push({name:'Wake Up',type:'break',time:'6:00 AM',endTime:''});
+  if(hasWord('wake','woke','get up')){
+    const t = findTime('wake', findTime('woke', findTime('get up','6:00 AM')));
+    slots.push({name:'Wake Up',type:'break',time:t,endTime:''});
   }
 
   // Prayer times
-  if(hasWord('fajr','fajar')) slots.push({name:'Fajr Prayer',type:'break',time:'5:15 AM',endTime:''});
-  if(hasWord('dhuhr','zuhr','noon prayer')) slots.push({name:'Dhuhr Prayer',type:'break',time:'1:00 PM',endTime:''});
+  if(hasWord('fajr','fajar')) slots.push({name:'Fajr Prayer',type:'break',time:findTime('fajr',findTime('fajar','5:15 AM')),endTime:''});
+  if(hasWord('dhuhr','zuhr')) slots.push({name:'Dhuhr Prayer',type:'break',time:'1:00 PM',endTime:''});
   if(hasWord('asr','asor')) slots.push({name:'Asr Prayer',type:'break',time:'4:00 PM',endTime:''});
   if(hasWord('maghrib','magrib')) slots.push({name:'Maghrib Prayer',type:'break',time:'6:30 PM',endTime:''});
-  if(hasWord('isha','esha')) slots.push({name:'Isha Prayer',type:'break',time:'8:30 PM',endTime:''});
-  if(hasWord('prayer','namaz','salah') && !hasWord('fajr','dhuhr','asr','maghrib','isha')) {
-    slots.push({name:'Prayer',type:'break',time:'5:00 PM',endTime:''});
+  if(hasWord('isha','esha')) slots.push({name:'Isha Prayer',type:'break',time:findTime('isha',findTime('esha','8:30 PM')),endTime:''});
+  if(hasWord('prayer','namaz','salah')&&!hasWord('fajr','dhuhr','asr','maghrib','isha')){
+    slots.push({name:'Prayer',type:'break',time:findTime('prayer',findTime('namaz','5:00 PM')),endTime:''});
   }
 
   // Exercise
-  if(hasWord('gym','workout','exercise','run','jog','walk','yoga')) {
-    slots.push({name:hasWord('gym')?'Gym Session':hasWord('run','jog')?'Morning Run':'Exercise',type:'break',time:'6:30 AM',endTime:'7:30 AM'});
+  if(hasWord('gym','workout','exercise','run','jog','yoga')){
+    const r = findTimeRange('gym',findTimeRange('workout',findTimeRange('exercise',{start:'6:30 AM',end:'7:30 AM'},{start:'6:30 AM',end:'7:30 AM'}),{start:'6:30 AM',end:'7:30 AM'}),{start:'6:30 AM',end:'7:30 AM'});
+    slots.push({name:hasWord('gym')?'Gym':hasWord('run','jog')?'Morning Run':'Exercise',type:'break',time:r.start,endTime:r.end});
   }
 
   // Breakfast
-  if(hasWord('breakfast','morning meal')) slots.push({name:'Breakfast',type:'meal',time:'7:30 AM',endTime:''});
+  if(hasWord('breakfast')) slots.push({name:'Breakfast',type:'meal',time:findTime('breakfast','7:30 AM'),endTime:''});
 
   // Study
-  if(hasWord('study','class','university','college','school','lecture')) {
-    if(hasWord('morning study','study in morning','study morning')) slots.push({name:'Morning Study',type:'study',time:'8:00 AM',endTime:'10:00 AM'});
-    if(hasWord('night study','study at night','night revision','evening study')) slots.push({name:'Night Study',type:'study',time:'9:00 PM',endTime:'10:30 PM'});
-    if(!hasWord('morning study','night study','study at night')) slots.push({name:'Study Session',type:'study',time:'8:00 AM',endTime:'12:00 PM'});
+  if(hasWord('study','revision','revise')){
+    const r = findTimeRange('study',{start:'8:00 AM',end:'12:00 PM'},{start:'8:00 AM',end:'12:00 PM'});
+    slots.push({name:'Study Session',type:'study',time:r.start,endTime:r.end});
+  }
+  if(hasWord('class','lecture','university','college')){
+    const r = findTimeRange('class',findTimeRange('lecture',{start:'8:00 AM',end:'1:00 PM'},{start:'8:00 AM',end:'1:00 PM'}),{start:'8:00 AM',end:'1:00 PM'});
+    slots.push({name:'Class',type:'class',time:r.start,endTime:r.end});
   }
 
   // Work
-  if(hasWord('work','office','job','shift')) slots.push({name:hasWord('office')?'Office Work':'Work',type:'study',time:'9:00 AM',endTime:'5:00 PM'});
-
-  // Lunch
-  if(hasWord('lunch','afternoon meal','midday')) slots.push({name:'Lunch',type:'meal',time:'1:00 PM',endTime:''});
-
-  // Nap / rest
-  if(hasWord('nap','rest','sleep afternoon','afternoon rest')) slots.push({name:'Afternoon Rest',type:'break',time:'2:00 PM',endTime:'3:00 PM'});
-
-  // Coding / skill
-  if(hasWord('code','coding','python','programming','dev','develop')) slots.push({name:'Coding Practice',type:'python',time:'7:00 PM',endTime:'8:00 PM'});
-  if(hasWord('reading','read book','book')) slots.push({name:'Reading',type:'study',time:'8:00 PM',endTime:'8:30 PM'});
-  if(hasWord('english','language','vocabulary')) slots.push({name:'English Practice',type:'study',time:'8:30 PM',endTime:'9:00 PM'});
-
-  // Dinner
-  if(hasWord('dinner','supper','evening meal')) slots.push({name:'Dinner',type:'meal',time:'7:30 PM',endTime:''});
-
-  // Sleep
-  if(hasWord('sleep','bed','sleep at','go to bed')) {
-    const t = input.match(/sleep.*?(\d+)\s*(am|pm)/i)||input.match(/(\d+)\s*(am|pm).*?sleep/i);
-    if(t){ const h=parseInt(t[1]),ap=t[2].toUpperCase(); slots.push({name:'Sleep',type:'sleep',time:h+':00 '+ap,endTime:''}); }
-    else slots.push({name:'Sleep',type:'sleep',time:'10:30 PM',endTime:''});
+  if(hasWord('work','office','job','shift')){
+    const r = findTimeRange('work',findTimeRange('office',findTimeRange('job',{start:'9:00 AM',end:'5:00 PM'},{start:'9:00 AM',end:'5:00 PM'}),{start:'9:00 AM',end:'5:00 PM'}),{start:'9:00 AM',end:'5:00 PM'});
+    slots.push({name:hasWord('office')?'Office':'Work',type:'study',time:r.start,endTime:r.end});
   }
 
-  // If nothing detected, add basics
-  if(slots.length === 0){
+  // Lunch
+  if(hasWord('lunch')) slots.push({name:'Lunch',type:'meal',time:findTime('lunch','1:00 PM'),endTime:''});
+
+  // Nap / rest
+  if(hasWord('nap','rest','afternoon rest')) slots.push({name:'Afternoon Rest',type:'break',time:findTime('nap',findTime('rest','2:00 PM')),endTime:''});
+
+  // Skill/coding
+  if(hasWord('code','coding','python','programming')) slots.push({name:'Coding Practice',type:'python',time:findTime('coding',findTime('code',findTime('python','7:00 PM'))),endTime:''});
+  if(hasWord('reading','read book')) slots.push({name:'Reading',type:'study',time:findTime('reading','8:00 PM'),endTime:''});
+  if(hasWord('english','vocabulary','language')) slots.push({name:'English Practice',type:'study',time:findTime('english','8:30 PM'),endTime:''});
+
+  // Dinner
+  if(hasWord('dinner','supper')) slots.push({name:'Dinner',type:'meal',time:findTime('dinner',findTime('supper','7:30 PM')),endTime:''});
+
+  // Sleep
+  if(hasWord('sleep','bed')){
+    const t = findTime('sleep',findTime('bed','10:30 PM'));
+    slots.push({name:'Sleep',type:'sleep',time:t,endTime:''});
+  }
+
+  // Fallback if nothing detected
+  if(slots.length===0){
     slots.push(
       {name:'Morning Routine',type:'break',time:'7:00 AM',endTime:''},
       {name:'Main Activity',type:'study',time:'9:00 AM',endTime:'12:00 PM'},
@@ -1820,20 +1852,22 @@ async function aiGenerateRoutine(){
     );
   }
 
-  // Add to wizData.routine (avoid duplicates)
+  // Add to wizData.routine (avoid duplicates by name)
+  let added=0;
   slots.forEach(s=>{
     if(!wizData.routine.find(r=>r.name===s.name)){
       wizData.routine.push({name:s.name, type:s.type, time:s.time+(s.endTime?'–'+s.endTime:'')});
+      added++;
     }
   });
 
   wizRenderRoutineList();
-  statusText.textContent=`✅ Added ${slots.length} slots! Review and edit below.`;
+  statusText.textContent=`✅ Added ${added} slots! Review and edit below.`;
   statusText.style.color='var(--accent2)';
   btn.disabled=false;
   btn.textContent='✦ Generate Again';
 }
-
+  const input = document.getElementById('aiRoutineInput').value.trim().toLowerCase();
 function wizFinish(){
   const schedule = {
     name: wizData.name,
