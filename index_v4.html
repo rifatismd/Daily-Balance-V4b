@@ -602,6 +602,22 @@
     <div class="feat"><span class="feat-icon">📝</span><span class="feat-name">Notes</span></div>
   </div>
 
+  <!-- Feedback Form -->
+  <div style="width:100%;margin-top:24px;background:#0e1219;border:1px solid #1c2535;border-radius:14px;padding:18px 16px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:#e6edf8;margin-bottom:4px;">💬 Share Feedback</div>
+    <div style="font-size:0.72rem;color:#5e728c;margin-bottom:12px;">Your feedback goes directly to the developer.</div>
+    <input id="fbName" placeholder="Your name (optional)" style="width:100%;background:#080b10;border:1px solid #1c2535;border-radius:8px;padding:8px 12px;color:#e6edf8;font-family:'Inter',sans-serif;font-size:0.8rem;box-sizing:border-box;margin-bottom:8px;outline:none;"/>
+    <textarea id="fbMsg" placeholder="Bugs, suggestions, or anything you'd like to share..." style="width:100%;background:#080b10;border:1px solid #1c2535;border-radius:8px;padding:8px 12px;color:#e6edf8;font-family:'Inter',sans-serif;font-size:0.8rem;resize:none;height:80px;box-sizing:border-box;outline:none;margin-bottom:8px;"></textarea>
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button onclick="setFbType('bug',this)" class="fb-type-btn" style="flex:1;padding:6px;border-radius:7px;border:1px solid #f5c542;background:#f5c542;color:#080b10;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;">🐛 Bug</button>
+      <button onclick="setFbType('idea',this)" class="fb-type-btn" style="flex:1;padding:6px;border-radius:7px;border:1px solid #1c2535;background:transparent;color:#5e728c;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;">💡 Idea</button>
+      <button onclick="setFbType('praise',this)" class="fb-type-btn" style="flex:1;padding:6px;border-radius:7px;border:1px solid #1c2535;background:transparent;color:#5e728c;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;">⭐ Praise</button>
+      <button onclick="setFbType('other',this)" class="fb-type-btn" style="flex:1;padding:6px;border-radius:7px;border:1px solid #1c2535;background:transparent;color:#5e728c;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;">📝 Other</button>
+    </div>
+    <button onclick="sendFeedback()" style="width:100%;background:#f5c542;border:none;color:#080b10;border-radius:9px;padding:11px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:0.85rem;">Send Feedback</button>
+    <div id="fbStatus" style="display:none;text-align:center;font-size:0.75rem;margin-top:8px;padding:8px;border-radius:7px;background:#0e1a10;color:#4ade80;"></div>
+  </div>
+
   <div class="footer">
     <a href="javascript:void(0)" onclick="openPrivacy()">Privacy Policy</a>
     <a href="javascript:void(0)" onclick="openTerms()">Terms & Conditions</a>
@@ -668,6 +684,28 @@ function continueAsGuest() {
 function showLoading(msg){ document.getElementById('loadingText').textContent=msg||'Loading...'; document.getElementById('loadingScreen').classList.add('show'); }
 function hideLoading(){ document.getElementById('loadingScreen').classList.remove('show'); }
 
+var fbType='bug';
+function setFbType(type,btn){
+  fbType=type;
+  document.querySelectorAll('.fb-type-btn').forEach(b=>{b.style.background='transparent';b.style.color='#5e728c';b.style.borderColor='#1c2535';});
+  btn.style.background='#f5c542';btn.style.color='#080b10';btn.style.borderColor='#f5c542';
+}
+function sendFeedback(){
+  const msg=document.getElementById('fbMsg').value.trim();
+  const name=document.getElementById('fbName').value.trim()||'Anonymous';
+  if(!msg){alert('Please write your feedback first.');return;}
+  const subject=encodeURIComponent('[Daily Balance] '+fbType.toUpperCase()+' from '+name);
+  const body=encodeURIComponent('Name: '+name+'\nType: '+fbType+'\n\nFeedback:\n'+msg);
+  window.location.href='mailto:rifatismd612@gmail.com?subject='+subject+'&body='+body;
+  setTimeout(function(){
+    const s=document.getElementById('fbStatus');
+    if(s){s.style.display='block';s.style.background='#0e1a10';s.style.color='#4ade80';s.textContent='✅ Email client opened! Send the email to submit your feedback.';}
+    document.getElementById('fbMsg').value='';
+    document.getElementById('fbName').value='';
+  },800);
+}
+
 </script>
 </body>
+</html>
 </html>

@@ -599,7 +599,7 @@
       <input class="wiz-input" id="wizName" placeholder="e.g. Alex" />
       <div class="wiz-label">What do you do? (optional)</div>
       <input class="wiz-input" id="wizRole" placeholder="e.g. Student, Engineer, Freelancer, Parent..." />
-      <div class="wiz-label">I mainly want to track:</div>
+      <div class="wiz-label">I mainly want to track: <span style="font-size:0.65rem;color:var(--muted);">(personalizes your app)</span></div>
       <div class="wiz-type-row" style="margin-bottom:4px;" id="wizLifestyleRow">
         <button class="wiz-type-btn active" data-ls="study" onclick="wizSetLifestyle(this)">📚 Study</button>
         <button class="wiz-type-btn" data-ls="work" onclick="wizSetLifestyle(this)">💼 Work</button>
@@ -607,6 +607,7 @@
         <button class="wiz-type-btn" data-ls="business" onclick="wizSetLifestyle(this)">🏢 Business</button>
         <button class="wiz-type-btn" data-ls="mixed" onclick="wizSetLifestyle(this)">🎯 Mixed</button>
       </div>
+      <div id="lifestyleHint" style="font-size:0.72rem;color:var(--text);background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:4px;border-left:3px solid var(--accent);">📚 <b>Study</b> — Class schedule, revision, exam prep</div>
       <input type="hidden" id="wizLifestyle" value="study" />
     </div>
 
@@ -828,6 +829,13 @@
     </button>
   </div>
 
+  <div id="dailyPomoWidget" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="position:relative;width:56px;height:56px;flex-shrink:0;"><svg width="56" height="56" viewBox="0 0 56 56"><circle fill="none" stroke="var(--border2)" stroke-width="5" cx="28" cy="28" r="21"/><circle fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" id="miniPomoRing" cx="28" cy="28" r="21" style="transform:rotate(-90deg);transform-origin:50% 50%;stroke-dasharray:132;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear;"/></svg><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.62rem;font-family:'DM Serif Display',serif;color:var(--text);" id="miniPomoTime">25:00</div></div>
+      <div style="flex:1;"><div style="font-size:0.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;" id="miniPomoMode">FOCUS</div><div style="display:flex;gap:5px;"><button onclick="pomoToggle()" class="pomo-btn primary" id="miniPomoBtn" style="padding:5px 12px;font-size:0.73rem;">▶</button><button onclick="pomoReset()" class="pomo-btn" style="padding:5px 9px;font-size:0.73rem;">↺</button><button onclick="switchView('pomo')" class="pomo-btn" style="padding:5px 9px;font-size:0.73rem;">⛶</button></div></div>
+      <div style="text-align:center;"><div style="font-size:1rem;font-family:'DM Serif Display',serif;color:var(--accent);" id="miniPomoSessions">0</div><div style="font-size:0.6rem;color:var(--muted);">sessions</div></div>
+    </div>
+  </div>
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="statClasses">0</div><div class="stat-lbl">Classes</div></div>
     <div class="stat-card"><div class="stat-num" id="statStudy">0h</div><div class="stat-lbl">Study</div></div>
@@ -1013,7 +1021,15 @@
 
 <!-- GOALS TAB -->
 <div id="goalsView" class="view-panel" style="display:none;">
-  <div class="fajr-banner" style="margin-bottom:16px;">
+
+  <!-- Stats -->
+  <div class="stats-row" style="margin-bottom:14px;">
+    <div class="stat-card"><div class="stat-num" id="goalStatTotal">0</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-card"><div class="stat-num" id="goalStatDone" style="color:var(--accent2);">0</div><div class="stat-lbl">Done</div></div>
+    <div class="stat-card"><div class="stat-num" id="goalStatLeft" style="color:var(--warn);">0</div><div class="stat-lbl">Active</div></div>
+  </div>
+
+  <div class="fajr-banner" style="margin-bottom:14px;">
     <span style="font-size:1.4rem">🌙</span>
     <div>
       <div class="fajr-num" id="fajrStreakNum">0</div>
@@ -1053,20 +1069,33 @@
     </div>
 
     <!-- Add goal form -->
+    <!-- Filter -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button onclick="setGoalFilter('all',this)" class="stype-btn active-type" id="gf_all">All</button>
+      <button onclick="setGoalFilter('active',this)" class="stype-btn" id="gf_active">Active</button>
+      <button onclick="setGoalFilter('done',this)" class="stype-btn" id="gf_done">Done ✓</button>
+    </div>
+
     <div id="addGoalForm" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
       <input id="newGoalText" placeholder="Goal description..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:0.83rem;font-family:'Inter',sans-serif;box-sizing:border-box;margin-bottom:8px;" />
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
         <div style="flex:1;">
-          <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Deadline (optional)</div>
+          <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Deadline</div>
           <input id="newGoalDeadline" type="date" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:0.8rem;font-family:'Inter',sans-serif;box-sizing:border-box;" />
         </div>
         <div style="flex:1;">
-          <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Progress %</div>
-          <input id="newGoalProgress" type="number" min="0" max="100" placeholder="0" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:0.8rem;font-family:'Inter',sans-serif;box-sizing:border-box;" />
+          <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Priority</div>
+          <select id="newGoalPriority" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.8rem;box-sizing:border-box;">
+            <option value="high">🔴 High</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="low">🟢 Low</option>
+          </select>
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button onclick="addGoalItem()" style="flex:1;background:var(--accent);border:none;color:#0a0905;border-radius:7px;padding:9px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:0.83rem;">Save Goal</button>
+      <div style="font-size:0.68rem;color:var(--muted);margin-bottom:4px;">Progress: <span id="newGoalProgressVal">0%</span></div>
+      <input type="range" id="newGoalProgress" min="0" max="100" value="0" oninput="document.getElementById('newGoalProgressVal').textContent=this.value+'%'" style="width:100%;margin-bottom:10px;"/>
+      <div style="display:flex;gap:8px;">
+        <button onclick="saveGoalItem()" style="flex:1;background:var(--accent);border:none;color:#0a0905;border-radius:7px;padding:9px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:0.83rem;">Save</button>
         <button onclick="toggleAddGoal()" style="background:var(--border);border:none;color:var(--muted);border-radius:7px;padding:9px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;">Cancel</button>
       </div>
     </div>
@@ -1383,8 +1412,16 @@ function getUserKey(base){
   try{
     var u=JSON.parse(localStorage.getItem('db_user')||'null');
     if(u&&u.email&&u.authType==='google') return base+'_'+u.email.replace(/[^a-z0-9]/gi,'_');
+    if(u&&u.authType==='guest') return base+'_guest';
   }catch(e){}
   return base+'_local';
+}
+function reloadAllUserData(){
+  userSchedule = getUserSchedule() || emptySchedule();
+  doneState = loadState();
+  cancelledState = loadCancelled();
+  extraState = loadExtra();
+  appSettings = loadSettings();
 }
 
 function getUserData() {
@@ -1409,7 +1446,7 @@ function migrateDataIfNeeded(){
     });
   }catch(e){}
 }
-window.addEventListener('DOMContentLoaded',function(){ migrateDataIfNeeded(); initUserGreeting(); });
+window.addEventListener('DOMContentLoaded',function(){ reloadAllUserData(); migrateDataIfNeeded(); initUserGreeting(); });
 function initUserGreeting() {
   try {
     var user=getUserData();
@@ -1583,7 +1620,9 @@ function checkAndShowWizard(){
 function wizSetLifestyle(btn){
   document.querySelectorAll('#wizLifestyleRow .wiz-type-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('wizLifestyle').value = btn.dataset.ls;
+  document.getElementById('wizLifestyle').value=btn.dataset.ls;
+  const hints={study:'📚 Optimized for students: classes, revision, goals',work:'💼 For professionals: shifts, meetings, deadlines',health:'🏃 Track gym, meals, sleep and fitness',business:'🏢 Meetings, tasks and business goals',mixed:'🎯 A mix of work, study, health and personal goals'};
+  const h=document.getElementById('lifestyleHint'); if(h) h.innerHTML=hints[btn.dataset.ls]||'';
   // Update step 1 title based on lifestyle
   const titles = {
     study: ['📚 Your <em>Classes</em>', 'Add your class schedule. Skip if you have no fixed classes.'],
@@ -1991,6 +2030,35 @@ function initGoal(){
   if(inp&&extraState.cgpa) inp.value=extraState.cgpa;
   if(tgt&&extraState.cgpaTarget) tgt.value=extraState.cgpaTarget;
   updateCGPABar();
+  renderGoalItems();
+}
+
+let goalFilter='all';
+function setGoalFilter(f,btn){
+  goalFilter=f;
+  document.querySelectorAll('#gf_all,#gf_active,#gf_done').forEach(b=>b.classList.remove('active-type'));
+  if(btn) btn.classList.add('active-type');
+  renderGoalItems();
+}
+function updateGoalStats(){
+  const goals=extraState.goalItems||[];
+  const done=goals.filter(g=>g.done).length;
+  const el1=document.getElementById('goalStatTotal'); if(el1) el1.textContent=goals.length;
+  const el2=document.getElementById('goalStatDone'); if(el2) el2.textContent=done;
+  const el3=document.getElementById('goalStatLeft'); if(el3) el3.textContent=goals.length-done;
+}
+function saveGoalItem(){
+  const txt=document.getElementById('newGoalText')?.value.trim();
+  if(!txt){alert('Enter a goal.');return;}
+  const deadline=document.getElementById('newGoalDeadline')?.value||'';
+  const priority=document.getElementById('newGoalPriority')?.value||'medium';
+  const progress=parseInt(document.getElementById('newGoalProgress')?.value)||0;
+  if(!extraState.goalItems) extraState.goalItems=[];
+  extraState.goalItems.push({text:txt,deadline,priority,progress,done:false,id:Date.now()});
+  saveExtra();
+  document.getElementById('newGoalText').value='';
+  if(document.getElementById('newGoalDeadline')) document.getElementById('newGoalDeadline').value='';
+  if(document.getElementById('addGoalForm')) document.getElementById('addGoalForm').style.display='none';
   renderGoalItems();
 }
 function toggleAddGoal(){
@@ -2726,14 +2794,15 @@ function renderWeekProgress(){
 // SETTINGS SYSTEM
 // ═══════════════════════════════════════════════
 const ALL_TABS = [
-  {id:'daily',  label:'📋 Daily',   required:true},
-  {id:'monthly',label:'📅 Month'},
-  {id:'skills', label:'📈 Skills'},
-  {id:'goals',  label:'🎯 Goals'},
-  {id:'notes',  label:'📝 Notes'},
-  {id:'pomo',   label:'⏱️ Pomodoro'},
-  {id:'tracker',label:'🩺 Tracker'},
-  {id:'slots',  label:'🗓️ Slots'},
+  {id:'daily',    label:'📋 Daily',    required:true},
+  {id:'monthly',  label:'📅 Month'},
+  {id:'medicine', label:'💊 Medicine'},
+  {id:'skills',   label:'📈 Skills'},
+  {id:'goals',    label:'🎯 Goals'},
+  {id:'notes',    label:'📝 Notes'},
+  {id:'pomo',     label:'⏱️ Focus'},
+  {id:'tracker',  label:'🩺 Tracker'},
+  {id:'slots',    label:'🗓️ Slots'},
 ];
 const DAILY_OPTIONS = [
   {id:'showQuickAccess', label:'Quick Access Buttons', sub:'Pomo / Tracker / Slots shortcuts', def:true},
@@ -2817,6 +2886,8 @@ function applyTheme(){
   const t=appSettings.theme||'dark';
   const prefersDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
   document.body.classList.toggle('light-theme',t==='light'||(t==='auto'&&!prefersDark));
+  if(appSettings.accentColor) document.documentElement.style.setProperty('--accent', appSettings.accentColor);
+  if(appSettings.accent2Color) document.documentElement.style.setProperty('--accent2', appSettings.accent2Color);
 }
 function setFontSize(s){
   appSettings.fontSize=s; saveSettings(appSettings);
@@ -2883,12 +2954,16 @@ function applyDashboardOptions(){
 }
 // Language strings
 const LANG={
-  en:{daily:'Daily',month:'Month',skills:'Skills',goals:'Goals',notes:'Notes',settings:'Settings',streak:'day streak'},
-  bn:{daily:'দৈনিক',month:'মাস',skills:'দক্ষতা',goals:'লক্ষ্য',notes:'নোট',settings:'সেটিং',streak:'দিনের ধারা'}
+  en:{daily:'Daily',month:'Month',medicine:'Meds',skills:'Skills',goals:'Goals',notes:'Notes',settings:'Settings',streak:'day streak',focus:'Focus',tracker:'Tracker'},
+  bn:{daily:'দৈনিক',month:'মাস',medicine:'ওষুধ',skills:'দক্ষতা',goals:'লক্ষ্য',notes:'নোট',settings:'সেটিং',streak:'দিনের ধারা',focus:'ফোকাস',tracker:'ট্র্যাকার'}
 };
 function applyLang(){
   const L=LANG[appSettings.lang||'en']||LANG.en;
-  const tabMap={tabDaily:'daily',tabMonthly:'month',tabSkills:'skills',tabGoals:'goals',tabNotes:'notes',tabSettings:'settings'};
+  const tabMap={
+    tabDaily:'daily',tabMonthly:'month',tabMedicine:'medicine',
+    tabSkills:'skills',tabGoals:'goals',tabNotes:'notes',
+    tabSettings:'settings',tabPomo:'focus',tabTracker:'tracker'
+  };
   Object.entries(tabMap).forEach(([id,key])=>{
     const btn=document.getElementById(id); if(!btn) return;
     const icon=btn.querySelector('.tab-icon');
@@ -2929,8 +3004,11 @@ function importData(e){
   reader.readAsText(file);
 }
 function confirmReset(){
-  if(confirm('⚠️ Delete ALL data? This cannot be undone.')){
-    localStorage.clear(); showDataMsg('🗑️ Cleared. Refreshing...'); setTimeout(()=>location.reload(),1000);
+  if(confirm('⚠️ Delete your data? This cannot be undone. Only YOUR account data will be cleared.')){
+    const keys=['voice_done','voice_cancelled','voice_extra','voice_settings','voice_schedule'];
+    keys.forEach(k=>{ localStorage.removeItem(getUserKey(k)); });
+    showDataMsg('🗑️ Your data cleared. Refreshing...');
+    setTimeout(()=>location.reload(),1000);
   }
 }
 function showDataMsg(msg){
@@ -3067,6 +3145,7 @@ function renderNotes(){
   let filtered = search ? allNotes : allNotes.filter(n=>n.dk===dk);
   if(activeNoteCategory !== 'all') filtered = filtered.filter(n=>n.cat===activeNoteCategory);
   if(search) filtered = filtered.filter(n=>n.text.toLowerCase().includes(search));
+  filtered.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
   if(!filtered.length){
     el.innerHTML=`<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:24px 0;">${search?'No notes found.':'No notes yet. Write something above!'}</div>`;
     return;
@@ -3077,7 +3156,10 @@ function renderNotes(){
         <div style="font-size:0.65rem;color:${NOTE_CAT_COLORS[n.cat]||'var(--muted)'};font-weight:700;margin-bottom:4px;letter-spacing:0.06em;">${NOTE_CAT_LABELS[n.cat]||n.cat}</div>
         <div style="font-size:0.85rem;color:var(--text);line-height:1.5;">${n.text}</div>
       </div>
-      <button onclick="deleteNote('${n.dk}',${n.i})" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:1rem;flex-shrink:0;padding:0;">🗑</button>
+      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+        <button onclick="toggleNotePin('${n.dk}',${n.i})" title="${n.pinned?'Unpin':'Pin'}" style="background:transparent;border:none;color:${n.pinned?'var(--accent)':'var(--muted)'};cursor:pointer;font-size:0.85rem;padding:0;">📌</button>
+        <button onclick="deleteNote('${n.dk}',${n.i})" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;">🗑</button>
+      </div>
     </div>`).join('');
 }
 function addNote(){
@@ -3089,6 +3171,14 @@ function addNote(){
   if(!extraState['notes_'+dk]) extraState['notes_'+dk]=[];
   extraState['notes_'+dk].unshift({text:val, cat});
   saveExtra(); inp.value=''; renderNotes();
+}
+
+function toggleNotePin(dk,i){
+  if(!extraState['notes_'+dk]) return;
+  const n=extraState['notes_'+dk][i];
+  if(typeof n==='string') extraState['notes_'+dk][i]={text:n,cat:'study',pinned:true};
+  else n.pinned=!n.pinned;
+  saveExtra(); renderNotes();
 }
 function deleteNote(dk, i){
   if(!extraState['notes_'+dk]) return;
@@ -3478,10 +3568,23 @@ function pomoUpdateUI(){
   document.getElementById('pomoTime').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   const circumference=2*Math.PI*80; // r=80
   const pct=pomoLeft/pomoTotal;
-  document.getElementById('pomoRing').style.strokeDasharray=circumference;
-  document.getElementById('pomoRing').style.strokeDashoffset=circumference*pct;
+  const ring=document.getElementById('pomoRing');
+  if(ring){ring.style.strokeDasharray=circumference;ring.style.strokeDashoffset=circumference*pct;}
+  updateMiniPomo();
 }
 pomoUpdateUI();
+
+function updateMiniPomo(){
+  const m=Math.floor(pomoLeft/60), s=pomoLeft%60;
+  const t=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const mt=document.getElementById('miniPomoTime'); if(mt) mt.textContent=t;
+  const mm=document.getElementById('miniPomoMode'); if(mm) mm.textContent=pomoBreak?'BREAK':'FOCUS';
+  const mb=document.getElementById('miniPomoBtn'); if(mb) mb.textContent=pomoRunning?'⏸':'▶';
+  const ms=document.getElementById('miniPomoSessions'); if(ms) ms.textContent=pomoSessions||0;
+  const circ=2*Math.PI*24;
+  const mr=document.getElementById('miniPomoRing');
+  if(mr){mr.style.strokeDasharray=circ;mr.style.strokeDashoffset=circ*(pomoLeft/pomoTotal);}
+}
 
 // ── INLINE TRACKER ──
 function renderInlineTracker(){
