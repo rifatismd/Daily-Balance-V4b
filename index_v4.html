@@ -668,6 +668,7 @@ function signInWithGoogle() {
         .then(function(info) {
           var user={name:info.name||'',email:info.email||'',photo:info.picture||'',authType:'google'};
           localStorage.setItem('db_user',JSON.stringify(user));
+          initStorageKeyIfNeeded(user);
           showLoading('Welcome, '+user.name.split(' ')[0]+'!');
           setTimeout(function(){ hideLoading(); goToApp(); },800);
         })
@@ -677,9 +678,26 @@ function signInWithGoogle() {
   client.requestAccessToken({prompt:'select_account'});
 }
 function continueAsGuest() {
-  localStorage.setItem('db_user',JSON.stringify({name:'Guest',email:'',photo:'',authType:'guest'}));
+  var user={name:'Guest',email:'',photo:'',authType:'guest'};
+  localStorage.setItem('db_user',JSON.stringify(user));
+  initStorageKeyIfNeeded(user);
   showLoading('Opening app...');
   setTimeout(function(){ hideLoading(); goToApp(); },500);
+}
+// Create the single consolidated data key for this identity right at login time
+// (matches dbf1_v4.html's getStorageKey()/loadAllData() scheme exactly), so the
+// key reliably exists from the moment someone logs in rather than only being
+// created the first time something gets saved inside the app.
+function initStorageKeyIfNeeded(user){
+  try{
+    var key;
+    if(user&&user.email&&user.authType==='google') key='dbf_data_'+user.email.replace(/[^a-z0-9]/gi,'_');
+    else if(user&&user.authType==='guest') key='dbf_data_guest';
+    else key='dbf_data_local';
+    if(!localStorage.getItem(key)){
+      localStorage.setItem(key, JSON.stringify({done:{},cancelled:{},extra:{},settings:{},schedule:null}));
+    }
+  }catch(e){}
 }
 function showLoading(msg){ document.getElementById('loadingText').textContent=msg||'Loading...'; document.getElementById('loadingScreen').classList.add('show'); }
 function hideLoading(){ document.getElementById('loadingScreen').classList.remove('show'); }

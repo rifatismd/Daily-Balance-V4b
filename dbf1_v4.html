@@ -1161,6 +1161,16 @@
 
   <div style="font-family:'DM Serif Display',serif;font-size:1.15rem;font-weight:400;margin-bottom:18px;">⚙️ Settings</div>
 
+  <!-- Sign in with Google from Guest mode — links guest data to the new account in one step. Shown first/top so it's not missed. -->
+  <div id="guestSignInSection" style="display:none;background:var(--surface);border:1.5px solid var(--accent);border-radius:12px;padding:14px;margin-bottom:16px;">
+    <div style="font-size:0.85rem;color:var(--text);font-weight:700;margin-bottom:4px;">👤 You're in Guest mode</div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:10px;">Sign in with Google to keep this data backed up to your account — nothing will be lost.</div>
+    <button onclick="signInFromSettings()" id="guestSignInBtn" style="width:100%;background:#fff;border:1px solid var(--border2);color:#1f1f1f;border-radius:8px;padding:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 6.1 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.4 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9.5 39.5 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C40.9 36.4 44 30.7 44 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
+      Sign in with Google
+    </button>
+  </div>
+
   <!-- ═══ APPEARANCE ═══ -->
   <div class="settings-card">
     <div class="settings-section-title">🎨 Appearance</div>
@@ -1317,16 +1327,6 @@
     <div id="driveSyncMsg" style="display:none;margin-top:8px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;font-size:0.82rem;color:var(--text);text-align:center;"></div>
     <input type="file" id="importFileInput" accept=".json" onchange="importData(event)" style="display:none;" />
 
-    <!-- Sign in with Google from Guest mode — links guest data to the new account in one step -->
-    <div id="guestSignInSection" style="display:none;background:var(--bg);border:1px solid var(--accent);border-radius:10px;padding:12px;margin-top:10px;">
-      <div style="font-size:0.8rem;color:var(--text);font-weight:600;margin-bottom:4px;">👤 You're in Guest mode</div>
-      <div style="font-size:0.73rem;color:var(--muted);margin-bottom:8px;">Sign in with Google to keep this data backed up to your account — nothing will be lost.</div>
-      <button onclick="signInFromSettings()" id="guestSignInBtn" style="width:100%;background:#fff;border:1px solid var(--border2);color:#1f1f1f;border-radius:8px;padding:9px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">
-        <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 6.1 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.4 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9.5 39.5 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C40.9 36.4 44 30.7 44 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
-        Sign in with Google
-      </button>
-    </div>
-
     <!-- Auto backup reminder toggle -->
     <div class="setting-row">
       <div><div class="setting-label">Weekly Backup Reminder</div><div class="setting-sub">Remind every 7 days to export</div></div>
@@ -1356,13 +1356,41 @@
 </div>
 
 <script>
-function getUserKey(base){
+// ── SINGLE consolidated storage key per identity ──
+// One Gmail account = one key ("dbf_data_<email>"). Guest mode = one key
+// ("dbf_data_guest"). Everything (routine/schedule, daily done-state,
+// cancelled slots, extra data (notes/goals/skills/medicines...), and
+// settings) lives together inside that ONE key as a single JSON object.
+// This makes each identity's data trivially easy to find/inspect (one
+// localStorage entry) and impossible to end up partially-saved across
+// multiple keys.
+function getStorageKey(){
   try{
     var u=JSON.parse(localStorage.getItem('db_user')||'null');
-    if(u&&u.email&&u.authType==='google') return base+'_'+u.email.replace(/[^a-z0-9]/gi,'_');
-    if(u&&u.authType==='guest') return base+'_guest';
+    if(u&&u.email&&u.authType==='google') return 'dbf_data_'+u.email.replace(/[^a-z0-9]/gi,'_');
+    if(u&&u.authType==='guest') return 'dbf_data_guest';
   }catch(e){}
-  return base+'_local';
+  return 'dbf_data_local';
+}
+function loadAllData(){
+  try{
+    var raw = localStorage.getItem(getStorageKey());
+    if(!raw) return {done:{}, cancelled:{}, extra:{}, settings:{}, schedule:null};
+    var blob = JSON.parse(raw);
+    return {
+      done: blob.done||{},
+      cancelled: blob.cancelled||{},
+      extra: blob.extra||{},
+      settings: blob.settings||{},
+      schedule: blob.schedule||null
+    };
+  }catch(e){ return {done:{}, cancelled:{}, extra:{}, settings:{}, schedule:null}; }
+}
+function saveAllData(){
+  try{
+    var blob = { done:doneState, cancelled:cancelledState, extra:extraState, settings:appSettings, schedule:userSchedule };
+    localStorage.setItem(getStorageKey(), JSON.stringify(blob));
+  }catch(e){}
 }
 function reloadAllUserData(){
   userSchedule = getUserSchedule() || emptySchedule();
@@ -1386,11 +1414,15 @@ function getUserData() {
 window.addEventListener('DOMContentLoaded',function(){ reloadAllUserData(); initUserGreeting(); });
 
 function hasGuestData(){
-  const keys=['voice_done_guest','voice_cancelled_guest','voice_extra_guest','voice_schedule_guest'];
-  return keys.some(k=>{
-    const v=localStorage.getItem(k);
-    return v && v!=='{}' && v!=='null' && v!=='[]';
-  });
+  const raw = localStorage.getItem('dbf_data_guest');
+  if(!raw || raw==='{}') return false;
+  try{
+    const blob = JSON.parse(raw);
+    return (blob.done && Object.keys(blob.done).length) ||
+           (blob.cancelled && Object.keys(blob.cancelled).length) ||
+           (blob.extra && Object.keys(blob.extra).length) ||
+           blob.schedule;
+  }catch(e){ return false; }
 }
 function checkGuestSignInOption(){
   const section=document.getElementById('guestSignInSection');
@@ -1419,20 +1451,57 @@ function signInFromSettings(){
         .then(r=>r.json())
         .then(info=>{
           const emailKey=(info.email||'').replace(/[^a-z0-9]/gi,'_');
-          // link this device's guest data to the new account before switching db_user
-          const bases=['voice_done','voice_cancelled','voice_extra','voice_settings','voice_schedule'];
-          bases.forEach(base=>{
-            const guestData=localStorage.getItem(base+'_guest');
-            if(guestData) localStorage.setItem(base+'_'+emailKey, guestData);
-          });
-          localStorage.setItem('db_user', JSON.stringify({name:info.name||'', email:info.email||'', photo:info.picture||'', authType:'google'}));
-          showDataMsg('✅ Signed in as '+(info.name||info.email)+'! Your guest data is now linked to this account.');
-          setTimeout(()=>location.reload(),1200);
+          // Does this email ALREADY have its own data on this device? (e.g. someone
+          // else's account, previously signed in here). If so, warn explicitly with
+          // a popup before proceeding — never silently switch into another
+          // person's account without them acknowledging it.
+          const existingRaw = localStorage.getItem('dbf_data_'+emailKey);
+          const accountHasExistingData = existingRaw && existingRaw!=='{}';
+          if(accountHasExistingData){
+            _pendingSignInInfo = info;
+            showAccountInUseModal(info);
+            if(btn) btn.textContent='Sign in with Google';
+            return;
+          }
+          completeSignIn(info, true);
         })
         .catch(()=>{ showDataMsg('Could not fetch your Google profile. Try again.', true); if(btn) btn.textContent='Sign in with Google'; });
     }
   });
   client.requestAccessToken({prompt:'select_account'});
+}
+let _pendingSignInInfo = null;
+function showAccountInUseModal(info){
+  const modal=document.getElementById('accountInUseModal');
+  const emailEl=document.getElementById('accountInUseEmail');
+  if(emailEl) emailEl.textContent = info.email || '';
+  if(modal) modal.style.display='flex';
+}
+function closeAccountInUseModal(){
+  const modal=document.getElementById('accountInUseModal');
+  if(modal) modal.style.display='none';
+  _pendingSignInInfo = null;
+}
+function confirmSignInToExistingAccount(){
+  if(_pendingSignInInfo) completeSignIn(_pendingSignInInfo, false);
+  closeAccountInUseModal();
+}
+function completeSignIn(info, mergeGuestData){
+  const emailKey=(info.email||'').replace(/[^a-z0-9]/gi,'_');
+  if(mergeGuestData){
+    const guestData=localStorage.getItem('dbf_data_guest');
+    if(guestData) localStorage.setItem('dbf_data_'+emailKey, guestData);
+  }
+  // Ensure this identity's consolidated key exists right away, same as when
+  // logging in from index_v4.html — not just created lazily on first save.
+  if(!localStorage.getItem('dbf_data_'+emailKey)){
+    localStorage.setItem('dbf_data_'+emailKey, JSON.stringify({done:{},cancelled:{},extra:{},settings:{},schedule:null}));
+  }
+  localStorage.setItem('db_user', JSON.stringify({name:info.name||'', email:info.email||'', photo:info.picture||'', authType:'google'}));
+  showDataMsg(mergeGuestData
+    ? '✅ Signed in as '+(info.name||info.email)+'! Your guest data is now linked to this account.'
+    : '✅ Signed in as '+(info.name||info.email)+'! Your guest data on this device was kept separate and not merged.');
+  setTimeout(()=>location.reload(),1200);
 }
 
 function initUserGreeting() {
@@ -1500,9 +1569,9 @@ const TYPE_COLORS = {class:'var(--class-b)',study:'var(--accent2)',break:'var(--
 
 // ── USER SCHEDULE (loaded from localStorage, set by wizard) ──
 function getUserSchedule(){
-  try{ return JSON.parse(localStorage.getItem(getUserKey('voice_schedule'))||'null'); }catch(e){return null;}
+  return loadAllData().schedule;
 }
-function saveUserSchedule(s){ localStorage.setItem(getUserKey('voice_schedule'),JSON.stringify(s)); }
+function saveUserSchedule(s){ userSchedule = s; saveAllData(); }
 
 // Default empty schedule
 function emptySchedule(){
@@ -1917,15 +1986,15 @@ function wizSkip(){
 const classSchedule = {};
 
 // STATE
-function loadState(){try{return JSON.parse(localStorage.getItem(getUserKey('voice_done'))||'{}');}catch(e){return {};}}
-function saveState(){try{localStorage.setItem(getUserKey('voice_done'),JSON.stringify(doneState));}catch(e){}}
+function loadState(){ return loadAllData().done; }
+function saveState(){ saveAllData(); }
 let doneState={};
-function loadCancelled(){try{return JSON.parse(localStorage.getItem(getUserKey('voice_cancelled'))||'{}');}catch(e){return {};}}
-function saveCancelled(){try{localStorage.setItem(getUserKey('voice_cancelled'),JSON.stringify(cancelledState));}catch(e){}}
+function loadCancelled(){ return loadAllData().cancelled; }
+function saveCancelled(){ saveAllData(); }
 let cancelledState={};
 
-function loadExtra(){try{return JSON.parse(localStorage.getItem(getUserKey('voice_extra'))||'{}');}catch(e){return {};}}
-function saveExtra(){try{localStorage.setItem(getUserKey('voice_extra'),JSON.stringify(extraState));}catch(e){}}
+function loadExtra(){ return loadAllData().extra; }
+function saveExtra(){ saveAllData(); }
 let extraState={};
 
 function initWater(){
@@ -2797,8 +2866,8 @@ const DASHBOARD_OPTIONS = [
   {id:'dashPomo',   label:'Pomodoro Widget', sub:'Mini timer on daily view',  def:false},
 ];
 
-function loadSettings(){ try{return JSON.parse(localStorage.getItem(getUserKey('voice_settings'))||'{}')}catch(e){return {};} }
-function saveSettings(s){ localStorage.setItem(getUserKey('voice_settings'),JSON.stringify(s)); }
+function loadSettings(){ return loadAllData().settings; }
+function saveSettings(s){ appSettings = s; saveAllData(); }
 let appSettings = {};
 
 function getTabVisible(id){ return appSettings['tab_'+id]!==false; }
@@ -3005,8 +3074,7 @@ function confirmReset(){
   _resetArmed = false;
   clearTimeout(_resetTimer);
   if(btn){ btn.textContent='🗑️ Reset All Data'; btn.style.background='transparent'; }
-  const keys=['voice_done','voice_cancelled','voice_extra','voice_settings','voice_schedule'];
-  keys.forEach(k=>{ localStorage.removeItem(getUserKey(k)); });
+  localStorage.removeItem(getStorageKey());
   showDataMsg('🗑️ Your data cleared. Refreshing...');
   setTimeout(()=>location.reload(),1000);
 }
@@ -3691,6 +3759,24 @@ function renderMedList(){
   <div id="customSlotList"></div>
 
 </div>
+</div>
+
+<!-- Account-in-use warning modal (shown instead of silently switching accounts) -->
+<div id="accountInUseModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border:1.5px solid var(--accent);border-radius:14px;padding:20px;max-width:360px;width:100%;">
+    <div style="font-size:1.6rem;margin-bottom:8px;text-align:center;">⚠️</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:1.05rem;text-align:center;margin-bottom:8px;">This account is already in use</div>
+    <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:6px;">
+      <span id="accountInUseEmail" style="color:var(--accent);font-weight:600;"></span> already has its own saved data on this device — someone else may already be using this account here.
+    </div>
+    <div style="font-size:0.8rem;color:var(--text);text-align:center;margin-bottom:16px;">
+      If this is really your account, you can continue — your existing data will load normally and your current Guest data will stay separate, untouched.
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeAccountInUseModal()" style="flex:1;background:var(--border);border:none;color:var(--text);border-radius:8px;padding:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:600;">Cancel</button>
+      <button onclick="confirmSignInToExistingAccount()" style="flex:1;background:var(--accent);border:none;color:#0a0905;border-radius:8px;padding:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:700;">Yes, this is my account</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>
