@@ -1374,8 +1374,34 @@ function getStorageKey(){
 }
 function loadAllData(){
   try{
-    var raw = localStorage.getItem(getStorageKey());
-    if(!raw) return {done:{}, cancelled:{}, extra:{}, settings:{}, schedule:null};
+    var key = getStorageKey();
+    var raw = localStorage.getItem(key);
+    if(!raw){
+      // Nothing under the new consolidated key yet — before assuming this is a
+      // brand-new identity, check for data saved under the OLD per-purpose key
+      // format (from before storage was consolidated: voice_done_<id>,
+      // voice_cancelled_<id>, voice_extra_<id>, voice_settings_<id>,
+      // voice_schedule_<id>). If found, pull it in as a one-time upgrade so
+      // real existing setups/data are never mistaken for "new user" again.
+      var oldSuffix = key.replace(/^dbf_data_/, '');
+      var oldDone = localStorage.getItem('voice_done_'+oldSuffix);
+      var oldCancelled = localStorage.getItem('voice_cancelled_'+oldSuffix);
+      var oldExtra = localStorage.getItem('voice_extra_'+oldSuffix);
+      var oldSettings = localStorage.getItem('voice_settings_'+oldSuffix);
+      var oldSchedule = localStorage.getItem('voice_schedule_'+oldSuffix);
+      if(oldDone||oldCancelled||oldExtra||oldSettings||oldSchedule){
+        var upgraded = {
+          done: oldDone ? JSON.parse(oldDone) : {},
+          cancelled: oldCancelled ? JSON.parse(oldCancelled) : {},
+          extra: oldExtra ? JSON.parse(oldExtra) : {},
+          settings: oldSettings ? JSON.parse(oldSettings) : {},
+          schedule: oldSchedule ? JSON.parse(oldSchedule) : null
+        };
+        localStorage.setItem(key, JSON.stringify(upgraded));
+        return upgraded;
+      }
+      return {done:{}, cancelled:{}, extra:{}, settings:{}, schedule:null};
+    }
     var blob = JSON.parse(raw);
     return {
       done: blob.done||{},
