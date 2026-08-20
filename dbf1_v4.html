@@ -1881,9 +1881,9 @@ async function aiGenerateRoutine(){
     return defaultTime;
   }
 
-  function findTimeRange(keyword, defStart, defEnd){
+  function findTimeRange(keyword){
     const idx = input.indexOf(keyword);
-    if(idx === -1) return {start:defStart, end:defEnd};
+    if(idx === -1) return null;
     const nearby = input.substring(Math.max(0,idx-5), idx+40);
     // Match "9am-5pm", "9:00am to 5pm", "9 am - 5 pm"
     const m = nearby.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)\s*(?:-|to)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
@@ -1892,7 +1892,7 @@ async function aiGenerateRoutine(){
       let h2=parseInt(m[4]),min2=m[5]?parseInt(m[5]):0,ap2=m[6].toUpperCase();
       return {start:`${h1}:${String(min1).padStart(2,'0')} ${ap1}`, end:`${h2}:${String(min2).padStart(2,'0')} ${ap2}`};
     }
-    return {start:defStart, end:defEnd};
+    return null;
   }
 
   const slots = [];
@@ -1915,7 +1915,7 @@ async function aiGenerateRoutine(){
 
   // Exercise
   if(hasWord('gym','workout','exercise','run','jog','yoga')){
-    const r = findTimeRange('gym',findTimeRange('workout',findTimeRange('exercise',{start:'6:30 AM',end:'7:30 AM'},{start:'6:30 AM',end:'7:30 AM'}),{start:'6:30 AM',end:'7:30 AM'}),{start:'6:30 AM',end:'7:30 AM'});
+    const r = findTimeRange('gym') || findTimeRange('workout') || findTimeRange('exercise') || {start:'6:30 AM',end:'7:30 AM'};
     slots.push({name:hasWord('gym')?'Gym':hasWord('run','jog')?'Morning Run':'Exercise',type:'break',time:r.start,endTime:r.end});
   }
 
@@ -1924,17 +1924,17 @@ async function aiGenerateRoutine(){
 
   // Study
   if(hasWord('study','revision','revise')){
-    const r = findTimeRange('study',{start:'8:00 AM',end:'12:00 PM'},{start:'8:00 AM',end:'12:00 PM'});
+    const r = findTimeRange('study') || {start:'8:00 AM',end:'12:00 PM'};
     slots.push({name:'Study Session',type:'study',time:r.start,endTime:r.end});
   }
   if(hasWord('class','lecture','university','college')){
-    const r = findTimeRange('class',findTimeRange('lecture',{start:'8:00 AM',end:'1:00 PM'},{start:'8:00 AM',end:'1:00 PM'}),{start:'8:00 AM',end:'1:00 PM'});
+    const r = findTimeRange('class') || findTimeRange('lecture') || {start:'8:00 AM',end:'1:00 PM'};
     slots.push({name:'Class',type:'class',time:r.start,endTime:r.end});
   }
 
   // Work
   if(hasWord('work','office','job','shift')){
-    const r = findTimeRange('work',findTimeRange('office',findTimeRange('job',{start:'9:00 AM',end:'5:00 PM'},{start:'9:00 AM',end:'5:00 PM'}),{start:'9:00 AM',end:'5:00 PM'}),{start:'9:00 AM',end:'5:00 PM'});
+    const r = findTimeRange('work') || findTimeRange('office') || findTimeRange('job') || {start:'9:00 AM',end:'5:00 PM'};
     slots.push({name:hasWord('office')?'Office':'Work',type:'study',time:r.start,endTime:r.end});
   }
 
