@@ -57,7 +57,6 @@
     .return-name{font-size:0.88rem;font-weight:600;color:#e6edf8;margin-bottom:2px;}
     .return-sub{font-size:0.68rem;color:#3a5a3a;}
     .return-btn{background:#f5c542;border:none;color:#0a0905;border-radius:8px;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:700;flex-shrink:0;}
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
   :root {
     --bg:#080b10;--surface:#0e1219;--surface2:#141b25;--border:#1c2535;--border2:#243048;
     --accent:#f5c542;--accent2:#34d9c3;--warn:#fb923c;--rose:#f87171;
@@ -2079,7 +2078,7 @@ function saveCGPATarget(){
   const t=document.getElementById('cgpaTargetInput');
   if(t){ extraState.cgpaTarget=parseFloat(t.value)||4.0; saveExtra(); }
 }
-function updateCGPABar(){
+function updateCGPABar(shouldSave){
   const inp=document.getElementById('cgpaCurrentInput');
   const tgt=document.getElementById('cgpaTargetInput');
   const cgpaBar=document.getElementById('cgpaBar');
@@ -2087,7 +2086,7 @@ function updateCGPABar(){
   if(!inp||!cgpaBar) return;
   const val=parseFloat(inp.value)||0;
   const target=parseFloat(tgt&&tgt.value)||parseFloat(extraState.cgpaTarget)||4.0;
-  extraState.cgpa=val; saveExtra();
+  if(shouldSave!==false){ extraState.cgpa=val; saveExtra(); }
   const pct=Math.round((val/target)*100);
   cgpaBar.style.width=Math.max(0,Math.min(100,pct))+'%';
   if(note){
@@ -2101,7 +2100,7 @@ function initGoal(){
   const tgt=document.getElementById('cgpaTargetInput');
   if(inp&&extraState.cgpa) inp.value=extraState.cgpa;
   if(tgt&&extraState.cgpaTarget) tgt.value=extraState.cgpaTarget;
-  updateCGPABar();
+  updateCGPABar(false);
   renderGoalItems();
 }
 
