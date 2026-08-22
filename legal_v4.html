@@ -531,219 +531,59 @@
 .legal-card{background:#12151e;border:1px solid #1e2535;border-radius:12px;padding:16px 20px;margin-bottom:16px;}
 .legal-back{display:inline-flex;align-items:center;gap:6px;background:#12151e;border:1px solid #1e2535;border-radius:8px;padding:8px 14px;color:#5e728c;font-size:0.8rem;cursor:pointer;margin-bottom:24px;font-family:"Inter",sans-serif;}
 .legal-back:hover{color:#f5c542;border-color:#f5c542;}
+.legal-tabs{display:flex;gap:8px;margin-bottom:20px;}
+.legal-tab{flex:1;background:#12151e;border:1px solid #1e2535;border-radius:10px;padding:10px;text-align:center;color:#5e728c;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:"Inter",sans-serif;transition:all 0.15s;}
+.legal-tab.active{background:#1a1e10;border-color:#f5c542;color:#f5c542;}
+.legal-section{display:none;}
+.legal-section.active{display:block;}
   </style>
 </head>
 <body>
 
-<div id="landingPage" class="page active" style="min-height:100vh;">
-<div class="bg-grid"></div>
-<div class="bg-glow bg-glow-1"></div>
-<div class="bg-glow bg-glow-2"></div>
+<div id="legalPage" class="page active"><div class="legal-wrap">
+  <button class="legal-back" onclick="goBack()">&#8592; Back</button>
 
-<div class="loading" id="loadingScreen">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">Signing you in...</div>
-</div>
-
-<div class="wrap">
-  <div class="app-icon">📋</div>
-  <div class="heading">Daily <em>Balance</em></div>
-  <div class="sub">Track · Grow · Achieve</div>
-
-  <div class="stats">
-    <div class="stat"><div class="stat-num">6+</div><div class="stat-lbl">Features</div></div>
-    <div class="stat"><div class="stat-num">∞</div><div class="stat-lbl">Free</div></div>
-    <div class="stat"><div class="stat-num">🔒</div><div class="stat-lbl">Private</div></div>
+  <div class="legal-tabs">
+    <div class="legal-tab active" id="tabPrivacyBtn" onclick="showLegalTab('privacy')">Privacy Policy</div>
+    <div class="legal-tab" id="tabTermsBtn" onclick="showLegalTab('terms')">Terms &amp; Conditions</div>
   </div>
 
-  <!-- Returning user banner -->
-  <div class="return-banner" id="returnBanner">
-    <div class="return-avatar-placeholder" id="returnAvatarWrap">👤</div>
-    <div class="return-info">
-      <div class="return-name" id="returnName">Welcome back!</div>
-      <div class="return-sub" id="returnSub">Continue where you left off</div>
-    </div>
-    <button class="return-btn" onclick="goToApp()">Open →</button>
+  <div id="privacySection" class="legal-section active">
+    <h1 class="legal-h1">Privacy Policy</h1><div class="legal-date">Last updated: June 28, 2026</div>
+    <div class="legal-card"><h2 class="legal-h2">About</h2><p>Daily Balance is a free personal productivity web app.</p></div>
+    <div class="legal-card"><h2 class="legal-h2">Data We Collect</h2><p>Only data you enter: routines, notes, goals, water, mood, skills, medicine, settings. We do NOT automatically collect personal info.</p></div>
+    <div class="legal-card"><h2 class="legal-h2">Storage</h2><p>All data is stored locally in your browser. Nothing sent to any server. Google profile (if signed in) saved locally only.</p></div>
+    <div class="legal-card"><h2 class="legal-h2">Google Sign In</h2><ul><li>Only basic profile requested</li><li>Credentials never stored</li><li>Sign out anytime</li></ul></div>
+    <div class="legal-card"><h2 class="legal-h2">Data Sharing</h2><p>We do not sell or share your data.</p></div>
+    <div class="legal-card"><h2 class="legal-h2">Contact</h2><p><a href="mailto:voicelessvoice00@gmail.com">voicelessvoice00@gmail.com</a></p></div>
   </div>
 
-  <!-- Sign in card -->
-  <div class="card" id="signInCard">
-    <div class="card-title">Get Started</div>
-    <button class="google-btn" onclick="signInWithGoogle()">
-      <svg width="20" height="20" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Continue with Google
-    </button>
-    <div class="divider-row">
-      <div class="divider-line"></div>
-      <div class="divider-text">or</div>
-      <div class="divider-line"></div>
-    </div>
-    <button class="guest-btn" onclick="continueAsGuest()">👤 Continue as Guest</button>
-    <div class="terms-note">
-      By continuing, you agree to our<br/>
-      <a href="javascript:void(0)" onclick="openTerms()">Terms & Conditions</a>
-      &nbsp;and&nbsp;
-      <a href="javascript:void(0)" onclick="openPrivacy()">Privacy Policy</a>
-    </div>
+  <div id="termsSection" class="legal-section">
+    <h1 class="legal-h1">Terms &amp; Conditions</h1><div class="legal-date">Last updated: June 28, 2026</div>
+    <div class="legal-card"><h2 class="legal-h2">Acceptance</h2><p>By using Daily Balance, you agree to these Terms.</p></div>
+    <div class="legal-card"><h2 class="legal-h2">User Responsibilities</h2><ul><li>Responsible for data accuracy</li><li>No unlawful use</li><li>Medicine tracker is reminder only, not medical advice</li></ul></div>
+    <div class="legal-card"><h2 class="legal-h2">Google Sign In</h2><p>Also agree to <a href="https://policies.google.com/terms" target="_blank">Google Terms</a>.</p></div>
+    <div class="legal-card"><h2 class="legal-h2">No Warranty</h2><p>Provided as-is without warranty. Use at your own risk.</p></div>
+    <div class="legal-card"><h2 class="legal-h2">Contact</h2><p><a href="mailto:voicelessvoice00@gmail.com">voicelessvoice00@gmail.com</a></p></div>
   </div>
 
-  <div class="features">
-    <div class="feat"><span class="feat-icon">⏱️</span><span class="feat-name">Focus</span></div>
-    <div class="feat"><span class="feat-icon">📅</span><span class="feat-name">Schedule</span></div>
-    <div class="feat"><span class="feat-icon">📈</span><span class="feat-name">Skills XP</span></div>
-    <div class="feat"><span class="feat-icon">🎯</span><span class="feat-name">Goals</span></div>
-    <div class="feat"><span class="feat-icon">💊</span><span class="feat-name">Medicine</span></div>
-    <div class="feat"><span class="feat-icon">📝</span><span class="feat-name">Notes</span></div>
-  </div>
+</div></div>
 
-  <!-- Feedback Form -->
-  <div style="width:100%;margin-top:24px;background:#0e1219;border:1px solid #1c2535;border-radius:14px;padding:18px 16px;">
-    <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:#e6edf8;margin-bottom:4px;">💬 Share Feedback</div>
-    <div style="font-size:0.72rem;color:#5e728c;margin-bottom:12px;">Your feedback goes directly to the developer.</div>
-    <input id="fbName" placeholder="Your name (optional)" style="width:100%;background:#080b10;border:1px solid #1c2535;border-radius:8px;padding:8px 12px;color:#e6edf8;font-family:'Inter',sans-serif;font-size:0.8rem;box-sizing:border-box;margin-bottom:8px;outline:none;"/>
-    <textarea id="fbMsg" placeholder="Bugs, suggestions, or anything you'd like to share..." style="width:100%;background:#080b10;border:1px solid #1c2535;border-radius:8px;padding:8px 12px;color:#e6edf8;font-family:'Inter',sans-serif;font-size:0.8rem;resize:none;height:80px;box-sizing:border-box;outline:none;margin-bottom:8px;"></textarea>
-    <div style="display:flex;gap:6px;margin-bottom:10px;">
-      <button onclick="setFbType('bug',this)" class="fb-type-btn" style="flex:1;padding:6px;border-radius:7px;border:1px solid #f5c542;background:#f5c542;color:#080b10;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;">🐛 Bug</button>
-      <button onclick="setFbType('idea',this)" class="fb-type-btn" style="flex:1;padding:6px;border-radius:7px;border:1px solid #1c2535;background:transparent;color:#5e728c;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;">💡 Idea</button>
-      <button onclick="setFbType('praise',this)" class="fb-type-btn" style="flex:1;padding:6px;border-radius:7px;border:1px solid #1c2535;background:transparent;color:#5e728c;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;">⭐ Praise</button>
-      <button onclick="setFbType('other',this)" class="fb-type-btn" style="flex:1;padding:6px;border-radius:7px;border:1px solid #1c2535;background:transparent;color:#5e728c;font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;">📝 Other</button>
-    </div>
-    <button onclick="sendFeedback()" style="width:100%;background:#f5c542;border:none;color:#080b10;border-radius:9px;padding:11px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:0.85rem;">Send Feedback</button>
-    <div id="fbStatus" style="display:none;text-align:center;font-size:0.75rem;margin-top:8px;padding:8px;border-radius:7px;background:#0e1a10;color:#4ade80;"></div>
-  </div>
-
-  <div class="footer">
-    <a href="javascript:void(0)" onclick="openPrivacy()">Privacy Policy</a>
-    <a href="javascript:void(0)" onclick="openTerms()">Terms & Conditions</a>
-    <br/>© 2026 Daily Balance
-  </div>
-</div>
 <script>
-
-function openPrivacy() { window.location.href = 'legal_v4.html?tab=privacy'; }
-function openTerms() { window.location.href = 'legal_v4.html?tab=terms'; }
-function getStorageKeyForUser(){
-  try{
-    var u=JSON.parse(localStorage.getItem('db_user')||'null');
-    if(u&&u.email&&u.authType==='google') return 'dbf_data_'+u.email.replace(/[^a-z0-9]/gi,'_');
-    if(u&&u.authType==='guest') return 'dbf_data_guest';
-  }catch(e){}
-  return 'dbf_data_local';
+function goBack() { window.location.href = 'index_v4.html'; }
+function showLegalTab(tab){
+  document.getElementById('privacySection').classList.toggle('active', tab==='privacy');
+  document.getElementById('termsSection').classList.toggle('active', tab==='terms');
+  document.getElementById('tabPrivacyBtn').classList.toggle('active', tab==='privacy');
+  document.getElementById('tabTermsBtn').classList.toggle('active', tab==='terms');
+  try{ history.replaceState(null,'','legal_v4.html?tab='+tab); }catch(e){}
 }
-function goToApp() {
-  // Go straight to the setup wizard if this identity hasn't finished it yet,
-  // instead of loading dbf1_v4.html first just to have it bounce away —
-  // avoids an extra redirect hop/flash on first login.
-  try{
-    var raw = localStorage.getItem(getStorageKeyForUser());
-    var blob = raw ? JSON.parse(raw) : null;
-    if(!blob || !blob.schedule || !blob.schedule.setupDone){
-      window.location.href = 'setup_v4.html';
-      return;
-    }
-  }catch(e){}
-  window.location.href = 'dbf1_v4.html';
-}
-
-var CLIENT_ID = '247285539126-6pbu6ogtpifr8a3qpt2fo7k1v27vu8u7.apps.googleusercontent.com';
-window.addEventListener('DOMContentLoaded', function() {
-  var user = getUserData();
-  if(user) showReturnBanner(user);
-});
-function getUserData() {
-  try { return JSON.parse(localStorage.getItem('db_user')||'null'); } catch(e) { return null; }
-}
-function showReturnBanner(user) {
-  var banner=document.getElementById('returnBanner'); if(!banner) return;
-  document.getElementById('returnName').textContent='Welcome back, '+(user.name?user.name.split(' ')[0]:'User')+'!';
-  document.getElementById('returnSub').textContent=user.email||'Guest mode';
-  var aw=document.getElementById('returnAvatarWrap');
-  if(user.photo&&user.authType==='google') aw.innerHTML='<img src="'+user.photo+'" class="return-avatar" />';
-  banner.classList.add('show');
-  var card=document.getElementById('signInCard');
-  if(card) card.querySelector('.card-title').textContent='Or sign in with another account';
-}
-function signInWithGoogle() {
-  if(!window.google||!window.google.accounts) {
-    var s=document.createElement('script'); s.src='https://accounts.google.com/gsi/client';
-    s.onload=function(){ setTimeout(signInWithGoogle,400); };
-    s.onerror=function(){ alert('Could not connect to Google.'); };
-    document.head.appendChild(s); return;
-  }
-  showLoading('Signing you in...');
-  var client=google.accounts.oauth2.initTokenClient({
-    client_id:CLIENT_ID,
-    scope:'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-    callback:function(resp) {
-      if(resp.error){ hideLoading(); alert('Sign in failed: '+resp.error); return; }
-      sessionStorage.setItem('gdrive_token',resp.access_token);
-      showLoading('Loading your profile...');
-      fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+resp.access_token}})
-        .then(function(r){ return r.json(); })
-        .then(function(info) {
-          var user={name:info.name||'',email:info.email||'',photo:info.picture||'',authType:'google'};
-          localStorage.setItem('db_user',JSON.stringify(user));
-          initStorageKeyIfNeeded(user);
-          showLoading('Welcome, '+user.name.split(' ')[0]+'!');
-          setTimeout(function(){ hideLoading(); goToApp(); },800);
-        })
-        .catch(function(){ hideLoading(); alert('Could not fetch profile. Try again.'); });
-    }
-  });
-  client.requestAccessToken({prompt:'select_account'});
-}
-function continueAsGuest() {
-  var user={name:'Guest',email:'',photo:'',authType:'guest'};
-  localStorage.setItem('db_user',JSON.stringify(user));
-  initStorageKeyIfNeeded(user);
-  showLoading('Opening app...');
-  setTimeout(function(){ hideLoading(); goToApp(); },500);
-}
-// Create the single consolidated data key for this identity right at login time
-// (matches dbf1_v4.html's getStorageKey()/loadAllData() scheme exactly), so the
-// key reliably exists from the moment someone logs in rather than only being
-// created the first time something gets saved inside the app.
-function initStorageKeyIfNeeded(user){
-  try{
-    var key;
-    if(user&&user.email&&user.authType==='google') key='dbf_data_'+user.email.replace(/[^a-z0-9]/gi,'_');
-    else if(user&&user.authType==='guest') key='dbf_data_guest';
-    else key='dbf_data_local';
-    if(!localStorage.getItem(key)){
-      localStorage.setItem(key, JSON.stringify({done:{},cancelled:{},extra:{},settings:{},schedule:null}));
-    }
-  }catch(e){}
-}
-function showLoading(msg){ document.getElementById('loadingText').textContent=msg||'Loading...'; document.getElementById('loadingScreen').classList.add('show'); }
-function hideLoading(){ document.getElementById('loadingScreen').classList.remove('show'); }
-
-var fbType='bug';
-function setFbType(type,btn){
-  fbType=type;
-  document.querySelectorAll('.fb-type-btn').forEach(b=>{b.style.background='transparent';b.style.color='#5e728c';b.style.borderColor='#1c2535';});
-  btn.style.background='#f5c542';btn.style.color='#080b10';btn.style.borderColor='#f5c542';
-}
-function sendFeedback(){
-  const msg=document.getElementById('fbMsg').value.trim();
-  const name=document.getElementById('fbName').value.trim()||'Anonymous';
-  if(!msg){alert('Please write your feedback first.');return;}
-  const subject=encodeURIComponent('[Daily Balance] '+fbType.toUpperCase()+' from '+name);
-  const body=encodeURIComponent('Name: '+name+'\nType: '+fbType+'\n\nFeedback:\n'+msg);
-  window.location.href='mailto:rifatismd612@gmail.com?subject='+subject+'&body='+body;
-  setTimeout(function(){
-    const s=document.getElementById('fbStatus');
-    if(s){s.style.display='block';s.style.background='#0e1a10';s.style.color='#4ade80';s.textContent='✅ Email client opened! Send the email to submit your feedback.';}
-    document.getElementById('fbMsg').value='';
-    document.getElementById('fbName').value='';
-  },800);
-}
-
+// Open directly to the requested tab via ?tab=privacy or ?tab=terms
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if(tab==='terms') showLegalTab('terms');
+})();
 </script>
 </body>
-</html>
 </html>
