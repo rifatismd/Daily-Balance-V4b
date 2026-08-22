@@ -62,9 +62,11 @@
     --accent:#f5c542;--accent2:#34d9c3;--warn:#fb923c;--rose:#f87171;
     --text:#e6edf8;--muted:#5e728c;--muted2:#3a4d62;
     --class-b:#6db8f5;--study-b:#34d9c3;--break-b:#fb923c;--sleep-b:#a78bfa;--meal-b:#f87171;
+    --app-max-width: 100%;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:0 0 60px;}
+  #appPage{max-width:var(--app-max-width);margin:0 auto;}
 
   /* HEADER */
   header{
@@ -261,9 +263,9 @@
   .cal-header-cell{text-align:center;font-size:0.64rem;font-weight:700;color:var(--muted);padding:4px 0;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
   .cal-cell{
-    aspect-ratio:1;border-radius:7px;border:1px solid var(--border);background:var(--surface);
+    aspect-ratio:1.6/1;border-radius:7px;border:1px solid var(--border);background:var(--surface);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    cursor:pointer;transition:border-color 0.15s;position:relative;min-height:40px;
+    cursor:pointer;transition:border-color 0.15s;position:relative;min-height:40px;max-height:64px;
   }
   .cal-cell.empty{background:transparent;border-color:transparent;cursor:default;}
   .cal-cell.today{border-color:var(--accent);}
@@ -498,249 +500,9 @@
 .legal-back{display:inline-flex;align-items:center;gap:6px;background:#12151e;border:1px solid #1e2535;border-radius:8px;padding:8px 14px;color:#5e728c;font-size:0.8rem;cursor:pointer;margin-bottom:24px;font-family:"Inter",sans-serif;}
 .legal-back:hover{color:#f5c542;border-color:#f5c542;}
 
-  /* ── SETUP WIZARD ── */
-  #setupWizard{position:fixed;inset:0;background:#080b10;z-index:9999;overflow-y:auto;padding:24px 20px 60px;display:none;}
-  #setupWizard.show{display:block;}
-  .wizard-step{display:none;max-width:440px;margin:0 auto;animation:fadeUp2 0.3s ease;}
-  .wizard-step.active{display:block;}
-  @keyframes fadeUp2{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-  .wizard-logo{font-size:2.5rem;text-align:center;margin:20px 0 12px;}
-  .wizard-title{font-family:'DM Serif Display',serif;font-size:1.6rem;text-align:center;margin-bottom:6px;}
-  .wizard-title em{font-style:italic;color:var(--accent);}
-  .wizard-sub{font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:28px;line-height:1.6;}
-  .wizard-progress{display:flex;gap:6px;justify-content:center;margin-bottom:28px;}
-  .wiz-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:all 0.3s;}
-  .wiz-dot.done{background:var(--accent2);}
-  .wiz-dot.active{background:var(--accent);transform:scale(1.3);}
-  .wizard-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
-  .wizard-card-title{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
-  .wiz-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.85rem;box-sizing:border-box;margin-bottom:8px;}
-  .wiz-input:focus{outline:none;border-color:var(--accent);}
-  .wiz-row{display:flex;gap:8px;margin-bottom:8px;}
-  .wiz-row .wiz-input{margin-bottom:0;}
-  .wiz-label{font-size:0.72rem;color:var(--muted);margin-bottom:4px;}
-  .wiz-btn-row{display:flex;gap:10px;margin-top:20px;}
-  .wiz-next{flex:1;background:var(--accent);border:none;color:#080b10;border-radius:10px;padding:13px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;}
-  .wiz-back-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:13px 18px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.85rem;}
-  .wiz-skip{background:transparent;border:none;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;margin-top:12px;display:block;width:100%;text-align:center;}
-  .class-slot-item{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border);}
-  .class-slot-info{flex:1;}
-  .class-slot-name{font-size:0.82rem;color:var(--text);}
-  .class-slot-time{font-size:0.68rem;color:var(--muted);}
-  .class-slot-del{background:#e0293d;border:none;color:#ffffff;cursor:pointer;font-size:0.85rem;border-radius:50%;width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;}
-  .class-slot-del:hover{color:#f87171;background:#3a1414;}
-  .wiz-day-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;}
-  .wiz-day-tabs::-webkit-scrollbar{display:none;}
-  .wiz-day-tab{flex-shrink:0;padding:6px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
-  .wiz-day-tab.active{background:var(--accent);border-color:var(--accent);color:#080b10;}
-  .wiz-add-btn{width:100%;padding:9px;background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--accent);font-size:0.8rem;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px;}
-  .wiz-type-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
-  .wiz-type-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;}
-  .wiz-type-btn.active{background:var(--accent);border-color:var(--accent);color:#080b10;font-weight:700;}
   </style>
 </head>
 <body>
-
-<!-- SETUP WIZARD -->
-<div id="setupWizard">
-
-  <!-- Progress dots -->
-  <div class="wizard-progress" id="wizProgress">
-    <div class="wiz-dot active" id="wdot0"></div>
-    <div class="wiz-dot" id="wdot1"></div>
-    <div class="wiz-dot" id="wdot2"></div>
-    <div class="wiz-dot" id="wdot3"></div>
-  </div>
-
-  <!-- Step 0: Welcome -->
-  <div class="wizard-step active" id="wStep0">
-    <div class="wizard-logo">⚖️</div>
-    <div class="wizard-title">Welcome to<br/><em>Daily Balance</em></div>
-    <div class="wizard-sub">Let's set up your personal daily routine. Takes 2 minutes!</div>
-
-    <div class="wizard-card">
-      <div class="wizard-card-title">👤 About You</div>
-      <div class="wiz-label">Your name *</div>
-      <input class="wiz-input" id="wizName" aria-label="Your name" placeholder="e.g. Alex" />
-      <div class="wiz-label">What do you do? (optional)</div>
-      <input class="wiz-input" id="wizRole" aria-label="What do you do" placeholder="e.g. Student, Engineer, Freelancer, Parent..." />
-      <div class="wiz-label">I mainly want to track: <span style="font-size:0.65rem;color:var(--muted);">(personalizes your app)</span></div>
-      <div class="wiz-type-row" style="margin-bottom:4px;" id="wizLifestyleRow">
-        <button class="wiz-type-btn active" data-ls="study" onclick="wizSetLifestyle(this)">📚 Study</button>
-        <button class="wiz-type-btn" data-ls="work" onclick="wizSetLifestyle(this)">💼 Work</button>
-        <button class="wiz-type-btn" data-ls="health" onclick="wizSetLifestyle(this)">🏃 Health</button>
-        <button class="wiz-type-btn" data-ls="business" onclick="wizSetLifestyle(this)">🏢 Business</button>
-        <button class="wiz-type-btn" data-ls="mixed" onclick="wizSetLifestyle(this)">🎯 Mixed</button>
-      </div>
-      <div id="lifestyleHint" style="font-size:0.72rem;color:var(--text);background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:4px;border-left:3px solid var(--accent);">📚 <b>Study</b> — Class schedule, revision, exam prep</div>
-      <input type="hidden" id="wizLifestyle" value="study" />
-    </div>
-
-    <div class="wizard-card">
-      <div class="wizard-card-title">⏰ Daily Schedule</div>
-      <div class="wiz-label">Wake up time</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-        <select class="wiz-input" id="wizWakeHour" style="margin-bottom:0;flex:1;">
-          <option value="01">1</option><option value="02">2</option><option value="03">3</option><option value="04">4</option><option value="05" selected>5</option><option value="06">6</option><option value="07">7</option><option value="08">8</option><option value="09">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
-        </select>
-        <span style="color:var(--muted);">:</span>
-        <select class="wiz-input" id="wizWakeMin" style="margin-bottom:0;flex:1;">
-          <option value="00" selected>00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
-        </select>
-        <select class="wiz-input" id="wizWakeAmPm" style="margin-bottom:0;flex:1;">
-          <option value="AM" selected>AM</option><option value="PM">PM</option>
-        </select>
-      </div>
-      <div class="wiz-label">Sleep time <span style="color:var(--muted);font-size:0.68rem;">(optional)</span></div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <select class="wiz-input" id="wizSleepHour" style="margin-bottom:0;flex:1;">
-          <option value="01">1</option><option value="02">2</option><option value="03">3</option><option value="04">4</option><option value="05">5</option><option value="06">6</option><option value="07">7</option><option value="08">8</option><option value="09">9</option><option value="10" selected>10</option><option value="11">11</option><option value="12">12</option>
-        </select>
-        <span style="color:var(--muted);">:</span>
-        <select class="wiz-input" id="wizSleepMin" style="margin-bottom:0;flex:1;">
-          <option value="00" selected>00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
-        </select>
-        <select class="wiz-input" id="wizSleepAmPm" style="margin-bottom:0;flex:1;">
-          <option value="AM">AM</option><option value="PM" selected>PM</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="wiz-btn-row">
-      <button class="wiz-next" onclick="wizNext(1)">Next →</button>
-    </div>
-    <p style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:10px;">Complete setup to start using Daily Balance</p>
-  </div>
-
-  <!-- Step 1: Schedule (optional if not studying) -->
-  <div class="wizard-step" id="wStep1">
-    <div class="wizard-title" style="margin-top:8px;" id="wizStep1Title">📅 Your <em>Schedule</em></div>
-    <div class="wizard-sub" id="wizStep1Sub">Add your recurring scheduled activities (classes, work shifts, meetings). Skip if not applicable.</div>
-
-    <div class="wiz-day-tabs" id="wizDayTabs"></div>
-
-    <div class="wizard-card">
-      <div class="wizard-card-title">Classes for <span id="wizActiveDay">Sat</span></div>
-      <div id="wizClassList"></div>
-      <button class="wiz-add-btn" onclick="wizShowAddClass()">+ Add Class</button>
-
-      <!-- Add class form -->
-      <div id="wizAddClassForm" style="display:none;margin-top:10px;background:var(--bg);border-radius:10px;padding:12px;border:1px solid var(--border);">
-        <div class="wiz-label">Subject name</div>
-        <input class="wiz-input" id="wizClassName" aria-label="Class name" placeholder="e.g. Math 2129" />
-        <div class="wiz-row">
-          <div style="flex:1;">
-            <div class="wiz-label">Start time</div>
-            <input class="wiz-input" type="time" id="wizClassStart" aria-label="Class start time" />
-          </div>
-          <div style="flex:1;">
-            <div class="wiz-label">End time</div>
-            <input class="wiz-input" type="time" id="wizClassEnd" aria-label="Class end time" />
-          </div>
-        </div>
-        <div class="wiz-label">Room / Teacher (optional)</div>
-        <input class="wiz-input" id="wizClassRoom" aria-label="Class room or location" placeholder="e.g. Admin 306 · Sir ABC" />
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="wiz-next" style="font-size:0.82rem;padding:9px;" onclick="wizAddClass()">Add</button>
-          <button class="wiz-back-btn" style="font-size:0.82rem;padding:9px 14px;" onclick="document.getElementById('wizAddClassForm').style.display='none'">Cancel</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="wiz-btn-row">
-      <button class="wiz-back-btn" onclick="wizNext(0)">← Back</button>
-      <button class="wiz-next" onclick="wizNext(2)">Next →</button>
-    </div>
-    <button class="wiz-skip" onclick="wizNext(2)" style="background:transparent;border:none;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;margin-top:10px;display:block;width:100%;text-align:center;">Skip — I don't have a fixed schedule</button>
-  </div>
-
-  <!-- Step 2: Daily Routine Slots -->
-  <div class="wizard-step" id="wStep2">
-    <div class="wizard-title" style="margin-top:8px;">🗓️ Daily <em>Routine</em></div>
-    <div class="wizard-sub">Add recurring activities — study blocks, prayer, meals, etc.</div>
-
-    <!-- AI Help Button -->
-    <div style="background:linear-gradient(135deg,var(--surface2),#0e1828);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <span style="font-size:1rem;">✦</span>
-        <span style="font-family:'DM Serif Display',serif;font-size:0.95rem;">AI Routine Setup</span>
-        <span style="font-size:0.58rem;font-weight:700;color:#080b10;background:var(--accent);border-radius:4px;padding:2px 6px;margin-left:auto;">Claude</span>
-      </div>
-      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Describe your ideal daily routine and AI will suggest slots for you.</div>
-      <textarea id="aiRoutineInput" placeholder="e.g. I wake up at 5am, pray Fajr, study for 2 hours, have class from 8-1pm, rest in afternoon, study at night and sleep at 11pm..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.8rem;resize:none;height:80px;box-sizing:border-box;outline:none;margin-bottom:8px;"></textarea>
-      <div style="font-size:0.68rem;color:var(--muted);margin-bottom:8px;line-height:1.6;">
-        💡 <b style="color:var(--text);">Tips:</b> Include times like "wake up at 6am", "work 9am-5pm", "sleep at 11pm"<br>
-        Keywords: <span style="color:var(--accent2);">fajr, gym, breakfast, study, class, work, lunch, prayer, dinner, coding, reading, sleep</span>
-      </div>
-      <button onclick="aiGenerateRoutine()" id="aiRoutineBtn" style="width:100%;background:var(--accent);border:none;color:#080b10;border-radius:8px;padding:9px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;font-size:0.82rem;">✦ Generate Routine with AI</button>
-      <div id="aiRoutineStatus" style="display:none;font-size:0.78rem;color:var(--muted);text-align:center;margin-top:8px;padding:8px;">
-        <span id="aiRoutineStatusText">Generating...</span>
-      </div>
-    </div>
-
-    <div class="wizard-card">
-      <div class="wizard-card-title">Routine Slots <span id="wizRoutineCount" style="color:var(--muted);font-weight:400;font-size:0.7rem;"></span></div>
-      <div id="wizRoutineList"></div>
-      <button class="wiz-add-btn" onclick="wizShowAddRoutine()">+ Add Manually</button>
-
-      <div id="wizAddRoutineForm" style="display:none;margin-top:10px;background:var(--bg);border-radius:10px;padding:12px;border:1px solid var(--border);">
-        <div class="wiz-label">Activity name</div>
-        <input class="wiz-input" id="wizRoutineName" aria-label="Routine name" placeholder="e.g. Morning Study, Lunch, Prayer..." />
-        <div class="wiz-type-row" id="wizTypeRow">
-          <button class="wiz-type-btn active" data-type="study" onclick="wizSetType(this,'study')">📖 Study</button>
-          <button class="wiz-type-btn" data-type="break" onclick="wizSetType(this,'break')">☕ Break</button>
-          <button class="wiz-type-btn" data-type="meal" onclick="wizSetType(this,'meal')">🍽️ Meal</button>
-          <button class="wiz-type-btn" data-type="sleep" onclick="wizSetType(this,'sleep')">😴 Sleep</button>
-          <button class="wiz-type-btn" data-type="python" onclick="wizSetType(this,'python')">🐍 Coding</button>
-        </div>
-        <input type="hidden" id="wizRoutineType" value="study" />
-        <div class="wiz-row">
-          <div style="flex:1;">
-            <div class="wiz-label">Start time</div>
-            <input class="wiz-input" type="time" id="wizRoutineStart" aria-label="Routine start time" />
-          </div>
-          <div style="flex:1;">
-            <div class="wiz-label">End time (optional)</div>
-            <input class="wiz-input" type="time" id="wizRoutineEnd" aria-label="Routine end time" />
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="wiz-next" style="font-size:0.82rem;padding:9px;" onclick="wizAddRoutine()">Add</button>
-          <button class="wiz-back-btn" style="font-size:0.82rem;padding:9px 14px;" onclick="document.getElementById('wizAddRoutineForm').style.display='none'">Cancel</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="wiz-btn-row">
-      <button class="wiz-back-btn" onclick="wizNext(1)">← Back</button>
-      <button class="wiz-next" onclick="wizNext(3)">Next →</button>
-    </div>
-  </div>
-
-  <!-- Step 3: Done -->
-  <div class="wizard-step" id="wStep3">
-    <div class="wizard-logo">🎉</div>
-    <div class="wizard-title">You're all <em>set!</em></div>
-    <div class="wizard-sub">Your personal routine is ready. You can always edit slots from the ⚙️ Slot Manager.</div>
-    <div class="wizard-card" id="wizSummaryCard" style="text-align:center;">
-      <div style="font-size:1.8rem;margin-bottom:8px;">👤</div>
-      <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;" id="wizSummaryName"></div>
-      <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;" id="wizSummaryRole"></div>
-      <div style="display:flex;gap:12px;justify-content:center;margin-top:14px;">
-        <div style="text-align:center;">
-          <div style="font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--accent);" id="wizSummaryClasses">0</div>
-          <div style="font-size:0.68rem;color:var(--muted);">Classes</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--accent2);" id="wizSummaryRoutine">0</div>
-          <div style="font-size:0.68rem;color:var(--muted);">Routine slots</div>
-        </div>
-      </div>
-    </div>
-    <button class="wiz-next" onclick="wizFinish()">🚀 Start using Daily Balance</button>
-  </div>
-
-</div>
 
 <div id="appPage" class="page active" style="background:var(--bg,#080b10);">
 <header>
@@ -1184,6 +946,17 @@
       </div>
     </div>
 
+    <!-- Page Width -->
+    <div class="setting-row">
+      <div><div class="setting-label">Page Width</div><div class="setting-sub">On wide screens — how much of the screen the app fills</div></div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="setAppWidth('480')"  class="theme-btn" id="widthBtn_480">Narrow</button>
+        <button onclick="setAppWidth('720')"  class="theme-btn" id="widthBtn_720">Medium</button>
+        <button onclick="setAppWidth('960')"  class="theme-btn" id="widthBtn_960">Wide</button>
+        <button onclick="setAppWidth('full')" class="theme-btn" id="widthBtn_full">Full</button>
+      </div>
+    </div>
+
     <!-- Accent Color -->
     <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
       <div class="setting-label">Accent Color</div>
@@ -1576,9 +1349,29 @@ function signOut() {
 }
 function switchAccount(){
   document.getElementById('userMenu').style.display='none';
-  localStorage.removeItem('db_user');
-  sessionStorage.removeItem('gdrive_token');
-  window.location.href = 'index_v4.html';
+  if(!window.google||!window.google.accounts){
+    const s=document.createElement('script'); s.src='https://accounts.google.com/gsi/client';
+    s.onload=function(){ setTimeout(switchAccount,400); };
+    s.onerror=function(){ alert('Could not connect to Google. Check your internet connection.'); };
+    document.head.appendChild(s); return;
+  }
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:SETTINGS_CLIENT_ID,
+    scope:'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+    callback:function(resp){
+      if(resp.error) return; // account picker was cancelled — stay signed in as-is
+      sessionStorage.setItem('gdrive_token', resp.access_token);
+      fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+resp.access_token}})
+        .then(r=>r.json())
+        .then(info=>{
+          // Switching between two real Google accounts should never merge Guest
+          // data — that only makes sense when upgrading FROM Guest mode.
+          completeSignIn(info, false);
+        })
+        .catch(()=>{ alert('Could not fetch the selected account\'s profile. Try again.'); });
+    }
+  });
+  client.requestAccessToken({prompt:'select_account'});
 }
 document.addEventListener('click',function(e){
   var menu=document.getElementById('userMenu'); var avatar=document.getElementById('userAvatar');
@@ -1679,337 +1472,6 @@ function to12hStr(t24){
 function typeIcon(type){
   const icons={study:'📖',break:'☕',meal:'🍽️',sleep:'😴',python:'🐍',class:'🏫',video:'🎬'};
   return icons[type]||'📌';
-}
-
-// ── SETUP WIZARD JS ──
-const WIZ_DAYS = ['Sat','Sun','Mon','Tue','Wed','Thu','Fri'];
-let wizCurrentDay = 'Sat';
-let wizData = {
-  name:'', role:'', wakeTime:'05:00', sleepTime:'22:30',
-  classes:{Sat:[],Sun:[],Mon:[],Tue:[],Wed:[],Thu:[],Fri:[]},
-  routine:[]
-};
-
-function checkAndShowWizard(){
-  const sched = getUserSchedule();
-  if(!sched || !sched.setupDone){
-    document.getElementById('setupWizard').classList.add('show');
-    wizInitDayTabs();
-    wizRenderClassList();
-    wizRenderRoutineList();
-  }
-}
-
-function wizSetLifestyle(btn){
-  document.querySelectorAll('#wizLifestyleRow .wiz-type-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('wizLifestyle').value=btn.dataset.ls;
-  const hints={study:'📚 Optimized for students: classes, revision, goals',work:'💼 For professionals: shifts, meetings, deadlines',health:'🏃 Track gym, meals, sleep and fitness',business:'🏢 Meetings, tasks and business goals',mixed:'🎯 A mix of work, study, health and personal goals'};
-  const h=document.getElementById('lifestyleHint'); if(h) h.innerHTML=hints[btn.dataset.ls]||'';
-  // Update step 1 title based on lifestyle
-  const titles = {
-    study: ['📚 Your <em>Classes</em>', 'Add your class schedule. Skip if you have no fixed classes.'],
-    work:  ['💼 Your <em>Work Schedule</em>', 'Add your work shifts or meetings. Skip if flexible.'],
-    health:['🏃 Your <em>Activities</em>', 'Add fixed gym sessions or appointments. Skip if flexible.'],
-    business:['🏢 Your <em>Meetings</em>', 'Add recurring meetings or appointments. Skip if flexible.'],
-    mixed: ['📅 Your <em>Schedule</em>', 'Add any recurring scheduled activities. Skip if not applicable.'],
-  };
-  const ls = btn.dataset.ls;
-  const t1 = document.getElementById('wizStep1Title');
-  const s1 = document.getElementById('wizStep1Sub');
-  if(t1&&titles[ls]) t1.innerHTML = titles[ls][0];
-  if(s1&&titles[ls]) s1.textContent = titles[ls][1];
-}
-
-function wizNext(step){
-  // Validate step 0
-  if(step===1){
-    const name = document.getElementById('wizName').value.trim();
-    if(!name){ alert('Please enter your name to continue.'); return; }
-    wizData.name = name;
-    wizData.role = document.getElementById('wizRole').value.trim();
-    wizData.lifestyle = document.getElementById('wizLifestyle').value || 'mixed';
-    // Build time from dropdowns
-    const wh = document.getElementById('wizWakeHour').value;
-    const wm = document.getElementById('wizWakeMin').value;
-    const wap = document.getElementById('wizWakeAmPm') ? document.getElementById('wizWakeAmPm').value : 'AM';
-    let wHour = parseInt(wh);
-    if(wap==='PM'&&wHour!==12) wHour+=12;
-    if(wap==='AM'&&wHour===12) wHour=0;
-    wizData.wakeTime = String(wHour).padStart(2,'0')+':'+wm;
-    const sh = document.getElementById('wizSleepHour').value;
-    const sm = document.getElementById('wizSleepMin').value;
-    const sap = document.getElementById('wizSleepAmPm') ? document.getElementById('wizSleepAmPm').value : 'PM';
-    let sHour = parseInt(sh);
-    if(sap==='PM'&&sHour!==12) sHour+=12;
-    if(sap==='AM'&&sHour===12) sHour=0;
-    wizData.sleepTime = String(sHour).padStart(2,'0')+':'+sm;
-  }
-  // Update progress dots
-  for(let i=0;i<4;i++){
-    const d=document.getElementById('wdot'+i);
-    if(i<step) d.className='wiz-dot done';
-    else if(i===step) d.className='wiz-dot active';
-    else d.className='wiz-dot';
-  }
-  // Show step
-  document.querySelectorAll('.wizard-step').forEach(s=>s.classList.remove('active'));
-  document.getElementById('wStep'+step).classList.add('active');
-  // Summary
-  if(step===3){
-    document.getElementById('wizSummaryName').textContent = wizData.name || 'User';
-    document.getElementById('wizSummaryRole').textContent = wizData.role || '';
-    const totalClasses = Object.values(wizData.classes).reduce((a,b)=>a+b.length,0);
-    document.getElementById('wizSummaryClasses').textContent = totalClasses;
-    document.getElementById('wizSummaryRoutine').textContent = wizData.routine.length;
-  }
-}
-
-function wizInitDayTabs(){
-  const tabs = document.getElementById('wizDayTabs');
-  tabs.innerHTML = WIZ_DAYS.map(d=>`<button class="wiz-day-tab${d==='Sat'?' active':''}" onclick="wizSelectDay('${d}',this)">${d}</button>`).join('');
-}
-
-function wizSelectDay(day, btn){
-  wizCurrentDay = day;
-  document.querySelectorAll('.wiz-day-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('wizActiveDay').textContent = day;
-  wizRenderClassList();
-  document.getElementById('wizAddClassForm').style.display='none';
-}
-
-function wizRenderClassList(){
-  const list = document.getElementById('wizClassList');
-  const classes = wizData.classes[wizCurrentDay]||[];
-  if(!classes.length){ list.innerHTML='<div style="color:var(--muted);font-size:0.78rem;padding:6px 0;">No classes added yet.</div>'; return; }
-  list.innerHTML = classes.map((c,i)=>`
-    <div class="class-slot-item">
-      <div class="class-slot-info">
-        <div class="class-slot-name">${c.name}</div>
-        <div class="class-slot-time">${c.time}${c.room?' · '+c.room:''}</div>
-      </div>
-      <button class="class-slot-del" onclick="wizDelClass(${i})">🗑</button>
-    </div>`).join('');
-}
-
-function wizShowAddClass(){ document.getElementById('wizAddClassForm').style.display='block'; }
-
-function wizAddClass(){
-  const name = document.getElementById('wizClassName').value.trim();
-  const start = document.getElementById('wizClassStart').value;
-  const end = document.getElementById('wizClassEnd').value;
-  const room = document.getElementById('wizClassRoom').value.trim();
-  if(!name||!start){ alert('Enter subject name and start time.'); return; }
-  const timeStr = end ? to12hStr(start)+'–'+to12hStr(end) : to12hStr(start);
-  wizData.classes[wizCurrentDay].push({name, time:timeStr, room});
-  document.getElementById('wizClassName').value='';
-  document.getElementById('wizClassStart').value='';
-  document.getElementById('wizClassEnd').value='';
-  document.getElementById('wizClassRoom').value='';
-  document.getElementById('wizAddClassForm').style.display='none';
-  wizRenderClassList();
-}
-
-function wizDelClass(i){
-  wizData.classes[wizCurrentDay].splice(i,1);
-  wizRenderClassList();
-}
-
-function wizRenderRoutineList(){
-  const list = document.getElementById('wizRoutineList');
-  const count = document.getElementById('wizRoutineCount');
-  if(count) count.textContent = wizData.routine.length ? `(${wizData.routine.length} slots)` : '';
-  if(!wizData.routine.length){ list.innerHTML='<div style="color:var(--muted);font-size:0.78rem;padding:6px 0;">No routine slots yet — use AI or add manually.</div>'; return; }
-  list.innerHTML = wizData.routine.map((r,i)=>`
-    <div class="class-slot-item">
-      <div class="class-slot-info">
-        <div class="class-slot-name">${typeIcon(r.type)} ${r.name}</div>
-        <div class="class-slot-time">${r.time}</div>
-      </div>
-      <button class="class-slot-del" onclick="wizDelRoutine(${i})">🗑</button>
-    </div>`).join('');
-}
-
-function wizShowAddRoutine(){ document.getElementById('wizAddRoutineForm').style.display='block'; }
-
-function wizSetType(btn, type){
-  document.querySelectorAll('.wiz-type-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('wizRoutineType').value = type;
-}
-
-function wizAddRoutine(){
-  const name = document.getElementById('wizRoutineName').value.trim();
-  const type = document.getElementById('wizRoutineType').value;
-  const start = document.getElementById('wizRoutineStart').value;
-  const end = document.getElementById('wizRoutineEnd').value;
-  if(!name||!start){ alert('Enter activity name and time.'); return; }
-  const timeStr = end ? to12hStr(start)+'–'+to12hStr(end) : to12hStr(start);
-  wizData.routine.push({name, type, time:timeStr});
-  document.getElementById('wizRoutineName').value='';
-  document.getElementById('wizRoutineStart').value='';
-  document.getElementById('wizRoutineEnd').value='';
-  document.getElementById('wizAddRoutineForm').style.display='none';
-  wizRenderRoutineList();
-}
-
-function wizDelRoutine(i){
-  wizData.routine.splice(i,1);
-  wizRenderRoutineList();
-}
-
-async function aiGenerateRoutine(){
-  const input = document.getElementById('aiRoutineInput').value.trim().toLowerCase();
-  if(!input){ alert('Please describe your routine first.'); return; }
-  const btn = document.getElementById('aiRoutineBtn');
-  const status = document.getElementById('aiRoutineStatus');
-  const statusText = document.getElementById('aiRoutineStatusText');
-  btn.disabled=true; btn.textContent='Generating...';
-  status.style.display='block'; statusText.textContent='Reading your routine...';
-  statusText.style.color='var(--muted)';
-
-  function hasWord(...words){ return words.some(w=>input.includes(w)); }
-
-  // Extract time near a keyword — looks for patterns like "at 5am", "5:30 am", "from 9am", "9-5pm"
-  function findTime(keyword, defaultTime){
-    const idx = input.indexOf(keyword);
-    if(idx === -1) return defaultTime;
-    const nearby = input.substring(Math.max(0,idx-10), idx+30);
-    // Match "5am", "5:30am", "5 am", "5:30 pm"
-    const m = nearby.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
-    if(m){
-      let h=parseInt(m[1]), min=m[2]?parseInt(m[2]):0, ap=m[3].toUpperCase();
-      return `${h}:${String(min).padStart(2,'0')} ${ap}`;
-    }
-    return defaultTime;
-  }
-
-  function findTimeRange(keyword){
-    const idx = input.indexOf(keyword);
-    if(idx === -1) return null;
-    const nearby = input.substring(Math.max(0,idx-5), idx+40);
-    // Match "9am-5pm", "9:00am to 5pm", "9 am - 5 pm"
-    const m = nearby.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)\s*(?:-|to)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
-    if(m){
-      let h1=parseInt(m[1]),min1=m[2]?parseInt(m[2]):0,ap1=m[3].toUpperCase();
-      let h2=parseInt(m[4]),min2=m[5]?parseInt(m[5]):0,ap2=m[6].toUpperCase();
-      return {start:`${h1}:${String(min1).padStart(2,'0')} ${ap1}`, end:`${h2}:${String(min2).padStart(2,'0')} ${ap2}`};
-    }
-    return null;
-  }
-
-  const slots = [];
-
-  // Wake up
-  if(hasWord('wake','woke','get up')){
-    const t = findTime('wake', findTime('woke', findTime('get up','6:00 AM')));
-    slots.push({name:'Wake Up',type:'break',time:t,endTime:''});
-  }
-
-  // Prayer times
-  if(hasWord('fajr','fajar')) slots.push({name:'Fajr Prayer',type:'break',time:findTime('fajr',findTime('fajar','5:15 AM')),endTime:''});
-  if(hasWord('dhuhr','zuhr')) slots.push({name:'Dhuhr Prayer',type:'break',time:'1:00 PM',endTime:''});
-  if(hasWord('asr','asor')) slots.push({name:'Asr Prayer',type:'break',time:'4:00 PM',endTime:''});
-  if(hasWord('maghrib','magrib')) slots.push({name:'Maghrib Prayer',type:'break',time:'6:30 PM',endTime:''});
-  if(hasWord('isha','esha')) slots.push({name:'Isha Prayer',type:'break',time:findTime('isha',findTime('esha','8:30 PM')),endTime:''});
-  if(hasWord('prayer','namaz','salah')&&!hasWord('fajr','dhuhr','asr','maghrib','isha')){
-    slots.push({name:'Prayer',type:'break',time:findTime('prayer',findTime('namaz','5:00 PM')),endTime:''});
-  }
-
-  // Exercise
-  if(hasWord('gym','workout','exercise','run','jog','yoga')){
-    const r = findTimeRange('gym') || findTimeRange('workout') || findTimeRange('exercise') || {start:'6:30 AM',end:'7:30 AM'};
-    slots.push({name:hasWord('gym')?'Gym':hasWord('run','jog')?'Morning Run':'Exercise',type:'break',time:r.start,endTime:r.end});
-  }
-
-  // Breakfast
-  if(hasWord('breakfast')) slots.push({name:'Breakfast',type:'meal',time:findTime('breakfast','7:30 AM'),endTime:''});
-
-  // Study
-  if(hasWord('study','revision','revise')){
-    const r = findTimeRange('study') || {start:'8:00 AM',end:'12:00 PM'};
-    slots.push({name:'Study Session',type:'study',time:r.start,endTime:r.end});
-  }
-  if(hasWord('class','lecture','university','college')){
-    const r = findTimeRange('class') || findTimeRange('lecture') || {start:'8:00 AM',end:'1:00 PM'};
-    slots.push({name:'Class',type:'class',time:r.start,endTime:r.end});
-  }
-
-  // Work
-  if(hasWord('work','office','job','shift')){
-    const r = findTimeRange('work') || findTimeRange('office') || findTimeRange('job') || {start:'9:00 AM',end:'5:00 PM'};
-    slots.push({name:hasWord('office')?'Office':'Work',type:'study',time:r.start,endTime:r.end});
-  }
-
-  // Lunch
-  if(hasWord('lunch')) slots.push({name:'Lunch',type:'meal',time:findTime('lunch','1:00 PM'),endTime:''});
-
-  // Nap / rest
-  if(hasWord('nap','rest','afternoon rest')) slots.push({name:'Afternoon Rest',type:'break',time:findTime('nap',findTime('rest','2:00 PM')),endTime:''});
-
-  // Coding practice
-  if(hasWord('code','coding','python','programming')) slots.push({name:'Coding Practice',type:'python',time:findTime('coding',findTime('code',findTime('python','7:00 PM'))),endTime:''});
-  if(hasWord('reading','read book')) slots.push({name:'Reading',type:'study',time:findTime('reading','8:00 PM'),endTime:''});
-  if(hasWord('english','vocabulary','language')) slots.push({name:'English Practice',type:'study',time:findTime('english','8:30 PM'),endTime:''});
-
-  // Dinner
-  if(hasWord('dinner','supper')) slots.push({name:'Dinner',type:'meal',time:findTime('dinner',findTime('supper','7:30 PM')),endTime:''});
-
-  // Sleep
-  if(hasWord('sleep','bed')){
-    const t = findTime('sleep',findTime('bed','10:30 PM'));
-    slots.push({name:'Sleep',type:'sleep',time:t,endTime:''});
-  }
-
-  // If nothing detected, don't guess — tell the user instead
-  if(slots.length===0){
-    statusText.textContent="⚠️ Couldn't understand that. Try mentioning times and words like 'wake up 6am', 'study 9am-5pm', 'gym', 'lunch', 'sleep 10:30pm'.";
-    statusText.style.color='var(--warn)';
-    btn.disabled=false;
-    btn.textContent='✦ Generate Again';
-    return;
-  }
-
-  // Add to wizData.routine (avoid duplicates by name)
-  let added=0;
-  slots.forEach(s=>{
-    if(!wizData.routine.find(r=>r.name===s.name)){
-      wizData.routine.push({name:s.name, type:s.type, time:s.time+(s.endTime?'–'+s.endTime:'')});
-      added++;
-    }
-  });
-
-  wizRenderRoutineList();
-  statusText.textContent=`✅ Added ${added} slots! Review and edit below.`;
-  statusText.style.color='var(--accent2)';
-  btn.disabled=false;
-  btn.textContent='✦ Generate Again';
-}
-function wizFinish(){
-  const schedule = {
-    name: wizData.name,
-    role: wizData.role,
-    wakeTime: wizData.wakeTime,
-    sleepTime: wizData.sleepTime,
-    classes: wizData.classes,
-    routine: wizData.routine,
-    setupDone: true
-  };
-  saveUserSchedule(schedule);
-  userSchedule = schedule;
-  document.getElementById('setupWizard').classList.remove('show');
-  renderTimeline();
-  renderDayTabs();
-}
-
-function wizSkip(){
-  const schedule = emptySchedule();
-  schedule.setupDone = true;
-  saveUserSchedule(schedule);
-  userSchedule = schedule;
-  document.getElementById('setupWizard').classList.remove('show');
-  renderTimeline();
 }
 
 // Remove old hardcoded schedule references
@@ -2929,6 +2391,7 @@ function initSettings(){
     </div>`).join('');
 
   setActiveBtn('themeBtn', appSettings.theme||'dark');
+  setActiveBtn('widthBtn', appSettings.appWidth||'full');
   setActiveBtn('fontBtn',  appSettings.fontSize||'medium');
   setActiveBtn('langBtn',  appSettings.lang||'en');
   setActiveBtn('timeBtn',  appSettings.timeFormat||'24');
@@ -2956,6 +2419,16 @@ function toggleDailyOpt(id,v){ appSettings[id]=v; saveSettings(appSettings); app
 function toggleDashOpt(id,v){ appSettings[id]=v; saveSettings(appSettings); applyDashboardOptions(); }
 
 function setTheme(t){ appSettings.theme=t; saveSettings(appSettings); applyTheme(); setActiveBtn('themeBtn',t); }
+function setAppWidth(w){
+  appSettings.appWidth=w;
+  saveSettings(appSettings);
+  applyAppWidth();
+  setActiveBtn('widthBtn',w);
+}
+function applyAppWidth(){
+  const w = appSettings.appWidth || 'full';
+  document.documentElement.style.setProperty('--app-max-width', w==='full' ? '100%' : w+'px');
+}
 function applyTheme(){
   const t=appSettings.theme||'dark';
   const prefersDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
@@ -2992,6 +2465,7 @@ function applyAllSettings(){
   if(appSettings.accentColor) document.documentElement.style.setProperty('--accent', appSettings.accentColor);
   if(appSettings.accent2Color) document.documentElement.style.setProperty('--accent2', appSettings.accent2Color);
   applyTheme();
+  applyAppWidth();
   if(appSettings.fontSize) document.documentElement.style.fontSize={small:'13px',medium:'15px',large:'17px'}[appSettings.fontSize]||'15px';
   if(appSettings.compact) document.body.classList.add('compact-mode');
   applyTabVisibility(); applyDailyOptions(); applyDashboardOptions(); applyLang();
@@ -3205,7 +2679,15 @@ initGoal();
 renderFajrStreak();
 setTimeout(renderInlineTracker, 100);
 
-// Check if wizard needed
+// Check if wizard needed — the setup wizard now lives on its own page
+// (setup_v4.html) instead of an in-app modal, so redirect there if the
+// user hasn't completed setup yet.
+function checkAndShowWizard(){
+  const sched = getUserSchedule();
+  if(!sched || !sched.setupDone){
+    window.location.href = 'setup_v4.html';
+  }
+}
 setTimeout(()=>{ userSchedule = getUserSchedule() || emptySchedule(); checkAndShowWizard(); }, 300);
 
 // Apply all settings AFTER DOM is rendered

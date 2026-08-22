@@ -627,7 +627,28 @@
 
 function openPrivacy() { window.location.href = 'privacy.html'; }
 function openTerms() { window.location.href = 'terms.html'; }
-function goToApp() { window.location.href = 'dbf1_v4.html'; }
+function getStorageKeyForUser(){
+  try{
+    var u=JSON.parse(localStorage.getItem('db_user')||'null');
+    if(u&&u.email&&u.authType==='google') return 'dbf_data_'+u.email.replace(/[^a-z0-9]/gi,'_');
+    if(u&&u.authType==='guest') return 'dbf_data_guest';
+  }catch(e){}
+  return 'dbf_data_local';
+}
+function goToApp() {
+  // Go straight to the setup wizard if this identity hasn't finished it yet,
+  // instead of loading dbf1_v4.html first just to have it bounce away —
+  // avoids an extra redirect hop/flash on first login.
+  try{
+    var raw = localStorage.getItem(getStorageKeyForUser());
+    var blob = raw ? JSON.parse(raw) : null;
+    if(!blob || !blob.schedule || !blob.schedule.setupDone){
+      window.location.href = 'setup_v4.html';
+      return;
+    }
+  }catch(e){}
+  window.location.href = 'dbf1_v4.html';
+}
 
 var CLIENT_ID = '247285539126-6pbu6ogtpifr8a3qpt2fo7k1v27vu8u7.apps.googleusercontent.com';
 window.addEventListener('DOMContentLoaded', function() {
