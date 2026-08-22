@@ -2657,20 +2657,17 @@ function updatePinDots(){
 }
 
 
-// Apply accent + theme first before any render
-if(appSettings.accentColor) document.documentElement.style.setProperty('--accent', appSettings.accentColor);
-if(appSettings.theme){
-  const prefersDark = window.matchMedia('(prefers-color-scheme:dark)').matches;
-  document.body.classList.toggle('light-theme', appSettings.theme==='light'||(appSettings.theme==='auto'&&!prefersDark));
-}
-if(appSettings.fontSize) document.documentElement.style.fontSize = {small:'13px',medium:'15px',large:'17px'}[appSettings.fontSize]||'15px';
-if(appSettings.compact) document.body.classList.add('compact-mode');
-
 // Must run AFTER all the `let` state variables below (userSchedule, doneState,
 // cancelledState, extraState, appSettings) have been declared — calling this
 // earlier throws "Cannot access before initialization" (temporal dead zone).
 reloadAllUserData();
 initUserGreeting();
+// Restore accent color, theme, page width, font size, and compact mode from
+// the just-loaded settings. This MUST run after reloadAllUserData() above —
+// running it earlier (as a previous version of this code did) meant
+// appSettings was still empty, so saved accent/theme/etc. silently failed to
+// restore on every fresh page load (e.g. after signing out and back in).
+applyAllSettings();
 renderDayTabs();
 renderTimeline();
 initWater();
