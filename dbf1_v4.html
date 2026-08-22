@@ -2579,6 +2579,12 @@ function confirmReset(){
   _resetArmed = false;
   clearTimeout(_resetTimer);
   if(btn){ btn.textContent='🗑️ Reset All Data'; btn.style.background='transparent'; }
+  // Don't decide what happens next automatically — ask the person what they
+  // want once the data is actually about to be cleared.
+  const modal=document.getElementById('resetChoiceModal');
+  if(modal) modal.style.display='flex';
+}
+function performDataClear(){
   localStorage.removeItem(getStorageKey());
   // Also clear any leftover data under the OLD pre-consolidation key format
   // (voice_done_<id>, voice_extra_<id>, etc.) for this same identity —
@@ -2589,8 +2595,30 @@ function confirmReset(){
   ['voice_done_','voice_cancelled_','voice_extra_','voice_settings_','voice_schedule_','voice_setup_done_'].forEach(prefix=>{
     localStorage.removeItem(prefix+oldSuffix);
   });
+}
+function resetAndGoToWizard(){
+  performDataClear();
+  window.location.href = 'setup_v4.html';
+}
+function resetAndGoToHome(){
+  performDataClear();
+  // Mark setup as already "done" with a blank schedule so the app lands
+  // straight on the Daily tab instead of bouncing to the setup wizard.
+  const blank = emptySchedule();
+  blank.setupDone = true;
+  localStorage.setItem(getStorageKey(), JSON.stringify({done:{},cancelled:{},extra:{},settings:{},schedule:blank}));
   showDataMsg('🗑️ Your data cleared. Refreshing...');
-  setTimeout(()=>location.reload(),1000);
+  setTimeout(()=>location.reload(),800);
+}
+function resetAndDeleteAccount(){
+  performDataClear();
+  // Fully remove this identity from the device too — not just its data —
+  // and send them back to the login screen, as if the account itself was
+  // deleted here (distinct from the other two options, which keep the same
+  // identity signed in with either a blank schedule or a fresh wizard).
+  localStorage.removeItem('db_user');
+  sessionStorage.removeItem('gdrive_token');
+  window.location.href = 'index_v4.html';
 }
 function showDataMsg(msg, isError){
   const el=document.getElementById('dataMsg'); if(!el) return;
@@ -3307,6 +3335,22 @@ function renderMedList(){
     <div style="display:flex;gap:8px;">
       <button onclick="closeAccountInUseModal()" style="flex:1;background:var(--border);border:none;color:var(--text);border-radius:8px;padding:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:600;">Cancel</button>
       <button onclick="confirmSignInToExistingAccount()" style="flex:1;background:var(--accent);border:none;color:#0a0905;border-radius:8px;padding:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:700;">Yes, this is my account</button>
+    </div>
+  </div>
+</div>
+
+<!-- After Reset All Data is confirmed, ask what should happen next instead of
+     silently deciding for the person. -->
+<div id="resetChoiceModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border:1.5px solid #f87171;border-radius:14px;padding:20px;max-width:360px;width:100%;">
+    <div style="font-size:1.6rem;margin-bottom:8px;text-align:center;">🗑️</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:1.05rem;text-align:center;margin-bottom:6px;">Your data will be cleared</div>
+    <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:18px;">What would you like to do afterward?</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button onclick="resetAndDeleteAccount()" style="background:#3a1010;border:1px solid #f87171;color:#f87171;border-radius:8px;padding:11px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:700;">🚫 Delete Account &amp; Sign Out</button>
+      <button onclick="resetAndGoToWizard()" style="background:var(--accent);border:none;color:#0a0905;border-radius:8px;padding:11px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:700;">🔄 Start Setup Wizard Again</button>
+      <button onclick="resetAndGoToHome()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:11px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:700;">🏠 Skip to Daily Home (blank)</button>
+      <button onclick="document.getElementById('resetChoiceModal').style.display='none'; _resetArmed=false;" style="background:transparent;border:none;color:var(--muted);border-radius:8px;padding:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.78rem;">Cancel — don't clear anything</button>
     </div>
   </div>
 </div>
