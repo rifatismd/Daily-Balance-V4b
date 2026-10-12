@@ -925,7 +925,7 @@
   <!-- Sign in with Google from Guest mode — links guest data to the new account in one step. Shown first/top so it's not missed. -->
   <div id="guestSignInSection" style="display:none;background:var(--surface);border:1.5px solid var(--accent);border-radius:12px;padding:14px;margin-bottom:16px;">
     <div style="font-size:0.85rem;color:var(--text);font-weight:700;margin-bottom:4px;">👤 You're in Guest mode</div>
-    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:10px;">Sign in with Google to keep this device's data separate by profile — nothing will be lost.</div>
+    <div style="font-size:0.75rem;color:var(--muted);margin-bottom:10px;">Guest data stays only in this browser. Sign in with Google, then back up to Drive, to help protect it if browser data is cleared.</div>
     <button onclick="signInFromSettings()" id="guestSignInBtn" style="width:100%;background:#fff;border:1px solid var(--border2);color:#1f1f1f;border-radius:8px;padding:10px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">
       <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 6.1 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.4 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9.5 39.5 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.2 5.2C40.9 36.4 44 30.7 44 24c0-1.4-.1-2.4-.4-3.5z"/></svg>
       Sign in with Google
@@ -1101,7 +1101,7 @@
 
     <!-- Auto backup reminder toggle -->
     <div class="setting-row">
-      <div><div class="setting-label">Weekly Backup Reminder</div><div class="setting-sub">Remind every 7 days to export</div></div>
+      <div><div class="setting-label">Weekly Backup Reminder</div><div class="setting-sub">Remind every 7 days to back up to Google Drive</div></div>
       <label class="toggle-switch"><input type="checkbox" id="backupReminderToggle" onchange="toggleBackupReminder(this.checked)"><span class="toggle-slider"></span></label>
     </div>
 
@@ -2404,7 +2404,7 @@ function initSettings(){
   const plt=document.getElementById('pinLockToggle'); if(plt) plt.checked=!!appSettings.pinEnabled;
   const psa=document.getElementById('pinSetupArea'); if(psa) psa.style.display=appSettings.pinEnabled?'block':'none';
   const brt=document.getElementById('backupReminderToggle'); if(brt) brt.checked=!!appSettings.backupReminder;
-  const lbd=document.getElementById('lastBackupDate'); if(lbd) lbd.textContent=appSettings.lastBackup||'Never';
+  const lbd=document.getElementById('lastBackupDate'); if(lbd) lbd.textContent=formatBackupTime(appSettings.lastBackup);
   document.querySelectorAll('.accent-swatch').forEach(sw=>{
     sw.classList.toggle('selected', sw.style.background===(appSettings.accentColor||'#f5c542'));
   });
@@ -2525,9 +2525,7 @@ function exportData(){
   const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download='daily_balance_backup_'+new Date().toISOString().split('T')[0]+'.json'; a.click();
-  appSettings.lastBackup=new Date().toLocaleDateString(); saveSettings(appSettings);
-  showDataMsg('✅ Backup exported!');
-  const lbd=document.getElementById('lastBackupDate'); if(lbd) lbd.textContent=appSettings.lastBackup;
+  showDataMsg('✅ Backup file exported. This does not change your Google Drive backup date.');
 }
 function importDataClick(){ document.getElementById('importFileInput').click(); }
 function importData(e){
@@ -2578,10 +2576,15 @@ async function findDriveBackup(token){
   const data=await r.json();return data.files&&data.files[0]?data.files[0]:null;
 }
 function currentBackupData(){return JSON.stringify({version:1,backedUpAt:new Date().toISOString(),done:doneState,cancelled:cancelledState,extra:extraState,settings:appSettings,schedule:userSchedule});}
+function formatBackupTime(value){
+  if(!value) return 'Never';
+  const date=new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+}
 function saveBackupTimeLocally(){
   appSettings.lastBackup=new Date().toISOString();
   localStorage.setItem(getStorageKey(),JSON.stringify({done:doneState,cancelled:cancelledState,extra:extraState,settings:appSettings,schedule:userSchedule}));
-  const el=document.getElementById('lastBackupDate');if(el)el.textContent=new Date(appSettings.lastBackup).toLocaleString();
+  const el=document.getElementById('lastBackupDate');if(el)el.textContent=formatBackupTime(appSettings.lastBackup);
 }
 async function uploadDriveBackup(silent){
   if(driveSyncInProgress)return;driveSyncInProgress=true;
@@ -2608,7 +2611,9 @@ async function restoreFromDrive(){
   try{
     showDriveMsg('Checking Google Drive…');const token=await getDriveAccessToken(),existing=await findDriveBackup(token);
     if(!existing){showDriveMsg('No Daily Balance backup was found in this Google Drive.',true);return;}
-    if(!confirm('Restore your saved Drive backup? Current local data will be replaced.'))return;
+    const backupTime=existing.modifiedTime ? new Date(existing.modifiedTime).toLocaleString() : 'an unknown time';
+    if(!confirm('Restore the Google Drive backup from '+backupTime+'? Your current local data will be replaced.'))return;
+    localStorage.setItem('dbf_before_drive_restore_'+getStorageKey(),currentBackupData());
     const r=await fetch('https://www.googleapis.com/drive/v3/files/'+existing.id+'?alt=media',{headers:{Authorization:'Bearer '+token}});
     if(!r.ok)throw new Error('Drive restore failed ('+r.status+').');
     const data=await r.json();if(!data||typeof data!=='object')throw new Error('The backup is invalid.');
@@ -2691,52 +2696,14 @@ function checkBackupReminder(){
   if(daysSince>=7) setTimeout(()=>alert('📦 '+daysSince+' days since your last Google Drive backup. Open Settings and tap “Backup to Drive”.'),2000);
 }
 
-// PIN LOCK
-let pinBuffer='';
-function togglePinLock(v){
-  appSettings.pinEnabled=v; saveSettings(appSettings);
-  const psa=document.getElementById('pinSetupArea'); if(psa) psa.style.display=v?'block':'none';
-  if(!v){delete appSettings.pin; saveSettings(appSettings);}
-}
-function savePIN(){
-  const inp=document.getElementById('pinInput'); const val=inp.value.trim();
-  if(val.length!==4||!/^\d{4}$/.test(val)){alert('PIN must be 4 digits.');return;}
-  appSettings.pin=btoa(val); appSettings.pinEnabled=true; saveSettings(appSettings);
-  inp.value=''; showDataMsg('✅ PIN saved!');
-}
-function removePIN(){
-  delete appSettings.pin; appSettings.pinEnabled=false; saveSettings(appSettings);
-  const plt=document.getElementById('pinLockToggle'); if(plt) plt.checked=false;
-  const psa=document.getElementById('pinSetupArea'); if(psa) psa.style.display='none';
-  showDataMsg('🔓 PIN removed.');
-}
-function checkPinLock(){
-  const ls=document.getElementById('lockScreen'); if(!ls) return;
-  // Only show lock if PIN is explicitly enabled AND a PIN exists
-  if(!appSettings.pinEnabled || !appSettings.pin){
-    ls.style.display='none';
-    return;
-  }
-  ls.style.display='flex';
-  const lockMsg=document.getElementById('lockMsg');
-  if(lockMsg){lockMsg.textContent='Enter your PIN to unlock';lockMsg.style.color='';}
-  pinBuffer=''; updatePinDots();
-}
-
-function pinPress(n){
-  if(pinBuffer.length>=4) return;
-  pinBuffer+=String(n); updatePinDots();
-  if(pinBuffer.length===4){
-    if(btoa(pinBuffer)===appSettings.pin){
-      const ls=document.getElementById('lockScreen'); if(ls) ls.style.display='none';
-      pinBuffer=''; updatePinDots();
-    } else {
-      const msg=document.getElementById('lockMsg');
-      if(msg){msg.textContent='Wrong PIN. Try again.';msg.style.color='var(--rose)';}
-      setTimeout(()=>{pinBuffer='';updatePinDots();if(msg){msg.textContent='Enter your PIN to unlock';msg.style.color='';}},700);
-    }
-  }
-}
+// PIN LOCK — hashed locally with Web Crypto. This is a privacy lock, not a replacement for your phone's screen lock.
+let pinBuffer='',pinFailures=0,pinLockedUntil=0;
+async function hashPIN(pin){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pin));return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+function togglePinLock(v){appSettings.pinEnabled=v;saveSettings(appSettings);const p=document.getElementById('pinSetupArea');if(p)p.style.display=v?'block':'none';if(!v){delete appSettings.pin;delete appSettings.pinHash;saveSettings(appSettings);}}
+async function savePIN(){const inp=document.getElementById('pinInput'),val=inp.value.trim();if(val.length!==4||!/^\d{4}$/.test(val)){alert('PIN must be 4 digits.');return;}if(!window.crypto||!crypto.subtle){alert('Please update your browser to use PIN lock.');return;}appSettings.pinHash=await hashPIN(val);delete appSettings.pin;appSettings.pinEnabled=true;saveSettings(appSettings);inp.value='';showDataMsg('✅ PIN saved securely.');}
+function removePIN(){delete appSettings.pin;delete appSettings.pinHash;appSettings.pinEnabled=false;saveSettings(appSettings);const p=document.getElementById('pinLockToggle');if(p)p.checked=false;const a=document.getElementById('pinSetupArea');if(a)a.style.display='none';showDataMsg('🔓 PIN removed.');}
+function checkPinLock(){const ls=document.getElementById('lockScreen');if(!ls)return;if(!appSettings.pinEnabled||(!appSettings.pin&&!appSettings.pinHash)){ls.style.display='none';return;}ls.style.display='flex';const msg=document.getElementById('lockMsg');if(msg){msg.textContent='Enter your PIN to unlock';msg.style.color='';}pinBuffer='';pinFailures=0;pinLockedUntil=0;updatePinDots();}
+async function pinPress(n){if(Date.now()<pinLockedUntil||pinBuffer.length>=4)return;pinBuffer+=String(n);updatePinDots();if(pinBuffer.length!==4)return;const entered=pinBuffer;const ok=appSettings.pinHash&&window.crypto&&crypto.subtle?(await hashPIN(entered))===appSettings.pinHash:appSettings.pin&&btoa(entered)===appSettings.pin;if(ok){if(!appSettings.pinHash&&window.crypto&&crypto.subtle){appSettings.pinHash=await hashPIN(entered);delete appSettings.pin;saveSettings(appSettings);}const ls=document.getElementById('lockScreen');if(ls)ls.style.display='none';pinBuffer='';updatePinDots();return;}pinFailures++;const msg=document.getElementById('lockMsg');if(pinFailures>=5){pinLockedUntil=Date.now()+30000;pinFailures=0;if(msg){msg.textContent='Too many attempts. Try again in 30 seconds.';msg.style.color='var(--rose)';}}else if(msg){msg.textContent='Wrong PIN. Try again.';msg.style.color='var(--rose)';}setTimeout(()=>{pinBuffer='';updatePinDots();if(Date.now()>=pinLockedUntil&&msg){msg.textContent='Enter your PIN to unlock';msg.style.color='';}},700);}
 function pinBackspace(){ pinBuffer=pinBuffer.slice(0,-1); updatePinDots(); }
 function updatePinDots(){
   document.querySelectorAll('.pin-dot').forEach((d,i)=>d.classList.toggle('filled',i<pinBuffer.length));
