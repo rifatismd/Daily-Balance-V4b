@@ -3391,5 +3391,7 @@ function renderMedList(){
  const old=window.saveAllData;window.saveAllData=function(){old.apply(this,arguments);clearTimeout(timer);timer=setTimeout(syncNow,1500);};
  firebase.auth().onAuthStateChanged(async u=>{if(!u)return;const snap=await db.collection('users').doc(u.uid).get();const cloud=snap.exists&&snap.data().v4b&&snap.data().v4b.data;if(cloud&&hasData(cloud)&&hasData(localBlob())){if(confirm('Cloud data found. Press OK to use Cloud data, or Cancel to keep this device data.')){localStorage.setItem(getStorageKey(),JSON.stringify(cloud));location.reload();}else syncNow();}else if(cloud&&hasData(cloud)){localStorage.setItem(getStorageKey(),JSON.stringify(cloud));location.reload();}else syncNow();});
 })();
+</script><script>
+(function(){function add(){const m=document.getElementById('driveSyncMsg');if(!m||document.getElementById('firebaseSyncNow'))return;const b=document.createElement('button');b.id='firebaseSyncNow';b.textContent='☁️ Sync now';b.style.cssText='width:100%;margin-top:8px;background:#10213a;border:1px solid #2563eb;color:#93c5fd;border-radius:9px;padding:10px;cursor:pointer;font-family:Inter,sans-serif;font-size:.8rem;font-weight:600';b.onclick=()=>window.firebaseSyncNow&&window.firebaseSyncNow();m.parentNode.insertBefore(b,m);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',add);else add();})();
 </script></body>
 </html>
